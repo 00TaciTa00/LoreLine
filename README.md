@@ -154,17 +154,36 @@ Pages 빌드는 `wrangler.toml`에 `pages_build_output_dir`가 있기를 기대�
 Next.js를 메이저 다운그레이드해야 하므로, Workers가 사실상 유일한 선택지다.**
 Cloudflare 공식 Next.js 가이드도 이 어댑터를 Workers 기준으로 안내한다.
 
-Git 연동으로 자동 배포하려면 Pages가 아닌 **Workers Builds**를 쓴다
-(대시보드: Workers & Pages > 프로젝트 > Settings > Builds):
+로컬에서 직접 배포할 때는 `npm run cf:deploy` 한 번이면 된다.
 
-| 항목 | 값 |
-| --- | --- |
-| Build command | `npm run cf:build` |
-| Deploy command | `npx wrangler deploy` |
-| 환경변수(Secret) | `DATABASE_URL` (필수) |
+### Git 자동 배포 (Workers Builds) 설정
 
-`DATABASE_URL`을 등록하지 않으면 요청 시점에 예외가 발생하므로 반드시 먼저 넣어야 한다.
-로컬에서 직접 배포할 때는 `npm run cf:deploy` 한 번이면 빌드와 배포가 같이 된다.
+Pages가 아닌 **Workers Builds**를 쓴다. 저장소 연결은 GitHub OAuth 승인이 필요해
+대시보드에서 사람이 직접 해야 한다.
+
+1. 대시보드 > **Workers & Pages** > Worker **`loreline`** 선택
+2. **Settings** > **Builds** > **Connect** → GitHub 계정 승인 →
+   저장소 `00TaciTa00/LoreLine` 선택
+3. 빌드 설정:
+
+   | 항목 | 값 |
+   | --- | --- |
+   | Build command | `npm run cf:build` |
+   | Deploy command | `npx wrangler deploy` |
+   | Branch (production) | `main` |
+   | Root directory | (비움 — 저장소 루트에 `package.json`이 있다) |
+
+4. 이후 `main`에 push하면 자동으로 빌드·배포된다.
+
+주의할 점:
+
+- **Worker 이름이 `wrangler.jsonc`의 `name`과 반드시 같아야 한다.** 다르면 빌드가
+  실패한다. 현재 둘 다 `loreline`이라 그대로 두면 된다.
+- **빌드 변수는 넣지 않아도 된다.** `DATABASE_URL` 없이 `npm run cf:build`가
+  통과하는 것을 확인했다(DB는 요청 시점에만 접속한다). 런타임용
+  `DATABASE_URL`은 이미 **Secret**으로 등록돼 있고, Secret은 배포로 덮이지 않는다.
+- Node 버전은 `.nvmrc`(24)를 따른다. 이 파일이 없으면 CI가 Node 22 → npm 10으로
+  돌아 `npm ci`가 깨진다(위 "Node 버전은 `.nvmrc`로 고정한다" 참고).
 
 ### 런타임 관련 주의점
 

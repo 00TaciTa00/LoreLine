@@ -146,9 +146,26 @@ P1·P2 전부 완료. 스펙 요구사항 8개가 모두 충족됐다.
 - 단위 테스트 22개(`sort-key`, `lanes`), 타입체크·린트 통과.
 - 원격 `main` = 로컬 `main` = `3a88518`.
 
+> **2026-08-20 갱신**: A-2, B-3, C-2를 완료했다. A-1은 코드 쪽 준비를 마쳤고
+> 대시보드 연결만 남았다. 각 항목에 결과를 적어뒀다.
+
 ## A. 배포 파이프라인 (가장 먼저 정리할 것)
 
-### A-1. Workers Builds(Git 자동 배포) 연결 — **미완**
+### A-1. Workers Builds(Git 자동 배포) 연결 — **코드 준비 완료, 대시보드 작업 남음**
+
+코드/설정 쪽에서 확인·정비한 것:
+
+- `wrangler.jsonc`의 `name`이 배포된 Worker 이름과 일치(`loreline`).
+  문서상 Workers Builds 실패의 대표 원인이라 먼저 확인했다.
+- `.nvmrc`(24)로 CI npm 버전 고정 — push 완료.
+- **`DATABASE_URL` 없이 `npm run cf:build`가 통과하는 것을 확인**했다.
+  따라서 CI에 빌드 변수를 넣을 필요가 없다(DB는 요청 시점에만 접속).
+- 저장소 루트에 `package.json`/`wrangler.jsonc`가 있어 Root directory는 비워도 된다.
+
+남은 것은 **GitHub OAuth 승인이 필요해 사람이 직접 해야 한다.**
+정확한 단계는 README의 "Git 자동 배포 (Workers Builds) 설정" 참고.
+
+<details><summary>기존 설명</summary>
 현재 배포는 로컬에서 `npm run cf:deploy`로 수동으로 한다. `main`에 push해도
 자동 빌드가 돌지 않는 것을 확인했다(push 후 새 배포 없음).
 
@@ -164,9 +181,10 @@ P1·P2 전부 완료. 스펙 요구사항 8개가 모두 충족됐다.
 돌아 `npm ci`가 깨진다. `.nvmrc`는 push했지만 **아직 실제 CI로 검증되지 않았다** —
 Workers Builds를 붙이는 첫 빌드가 그 검증이 된다.
 
-### A-2. `master` 브랜치 정리 — 낮은 우선순위
-GitHub에 `master`(`ec176f9`)가 `main`과 별개로 남아 있다. `main`이 그 내용을
-모두 포함하므로 혼선을 줄이려면 원격 `master`를 삭제하는 편이 낫다.
+</details>
+
+### A-2. `master` 브랜치 정리 — **완료**
+원격 `master`를 삭제했다. `main`이 그 내용을 모두 포함한다.
 
 ## B. 기능
 
@@ -181,11 +199,20 @@ GitHub에 `master`(`ec176f9`)가 `main`과 별개로 남아 있다. `main`이 �
 자동 생성해 쓴다(`lib/db/timelines.ts`). 스펙 기능 요구사항에 Timeline CRUD가
 없어 후순위로 둔 상태 그대로다.
 
-### B-3. 세계관 삭제 시 하위 데이터 처리
-현재 World를 소프트 삭제해도 하위 Timeline/Event/Place/Character는 그대로
-남는다(`app/api/worlds/[worldId]/route.ts` 주석 참고). 목록에서 안 보이니
-당장은 문제가 없지만, 삭제된 세계관의 자식 데이터가 DB에 계속 쌓인다.
-세계관을 되살리는 기능(휴지통)을 넣을지 함께 정할 문제다.
+### B-3. 세계관 삭제 시 하위 데이터 처리 — **완료**
+실제 API로 확인해보니 예상보다 나빴다. 세계관을 지우면
+`GET /api/worlds/:id`는 404인데 `/places`·`/characters`·`/events`는
+**하위 데이터를 그대로 돌려주고 있었다**. 목록 필터가 각 테이블의
+`deleted_at`만 보기 때문으로, 세계관 단위 격리 원칙이 깨진 상태였다.
+
+`softDeleteWorld`(`lib/db/worlds.ts`)로 분리해 한 트랜잭션에서 하위
+Timeline/Event/Place/Character까지 같은 `deleted_at`을 찍도록 고쳤다.
+조인 테이블은 복구를 위해 보존한다(스펙의 CASCADE는 하드 삭제용).
+테스트 7개로 덮었고 프로덕션에서도 확인했다.
+
+남은 관련 이슈: **삭제된 세계관에 POST로 공간·인물을 새로 만들 수 있다.**
+생성 API가 world의 `deleted_at`을 확인하지 않는다. 같은 계열의 구멍이지만
+이번 범위(삭제 시 처리)를 넘어서 손대지 않았다.
 
 ## C. 품질
 
@@ -193,10 +220,12 @@ GitHub에 `master`(`ec176f9`)가 `main`과 별개로 남아 있다. `main`이 �
 단위 테스트는 순수 함수만 덮는다. 사건 생성→스윔레인 배치→교차 탐색으로
 이어지는 흐름은 사람이 브라우저로 확인하고 있다.
 
-### C-2. DB를 타는 로직의 테스트 — 미구현
-`resolveSortKeyForInsert` / `rebalanceTimeline`은 DB가 필요해 단위 테스트에서
-빠져 있다. 특히 `rebalanceTimeline`은 **실제로 트리거된 적이 없다**(간격이
-소진될 만큼 중간 삽입을 반복한 적이 없음). 재정렬 경로는 사실상 미검증 코드다.
+### C-2. DB를 타는 로직의 테스트 — **완료**
+PGlite(인메모리 Postgres)에 실제 마이그레이션을 적용하는 테스트 하네스
+(`lib/db/test-db.ts`)를 만들고 `resolveSortKeyForInsert`/`rebalanceTimeline`을
+12개 테스트로 덮었다. 간격이 소진되는 경계(간격 1, 정확히 `MIN_GAP`)와
+재정렬을 반복 유발하는 케이스를 포함해, **미검증이던 재정렬 경로가 실제로
+실행되는 것을 확인**했다. 네트워크가 필요 없어 CI에서도 그대로 돈다.
 
 ### C-3. `sort_key` 부분 재정렬 — 성능, 아직 불필요
 `rebalanceTimeline`이 타임라인 전체를 재채번한다. 사건이 수천 건 쌓이기 전에는
@@ -207,9 +236,11 @@ GitHub에 `master`(`ec176f9`)가 `main`과 별개로 남아 있다. `main`이 �
 pooled(`-pooler`) 문자열을 `DATABASE_URL`로, direct를 `DATABASE_URL_UNPOOLED`로
 나눠야 한다(`.env.example`에 형식은 이미 적어둠).
 
-## 권장 순서
+## 권장 순서 (2026-08-20 갱신)
 
-1. **A-1** — 자동 배포가 붙어야 이후 변경이 안전하게 나간다. `.nvmrc` 검증도 겸한다.
-2. **C-2** — 미검증 재정렬 경로를 덮는다. 데이터 순서가 깨지면 조용히 잘못된다.
-3. **B-3** — 데이터 정합성 문제라 방치할수록 쌓인다.
-4. 나머지(B-1, B-2, C-1, C-3, C-4)는 실제 사용하면서 필요해지는 순서대로.
+1. **A-1 대시보드 연결** — 코드 준비는 끝났다. 사람이 눌러야 하는 단계만 남았다.
+2. **삭제된 세계관에 POST 차단** (B-3에서 파생) — 남은 격리 구멍.
+3. 나머지(B-1 드래그앤드롭, B-2 복수 Timeline, C-1 E2E, C-3 부분 재정렬,
+   C-4 pooled 연결)는 실제 사용하면서 필요해지는 순서대로.
+
+완료: A-2(master 정리), B-3(삭제 시 하위 데이터), C-2(DB 로직 테스트).
