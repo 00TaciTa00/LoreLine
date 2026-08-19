@@ -12,7 +12,8 @@ import { laneEventCounts } from "@/lib/timeline/grid";
 import { computeLanes } from "@/lib/timeline/lanes";
 import type { EventItem } from "@/lib/api/types";
 import { useCharacters } from "@/lib/query/characters";
-import { useEvents } from "@/lib/query/events";
+import { useEvents, useReorderEvent } from "@/lib/query/events";
+import { placementForDrop } from "@/lib/timeline/reorder";
 import { usePlaces } from "@/lib/query/places";
 import { useTimelineViewStore } from "@/store/useTimelineViewStore";
 
@@ -24,6 +25,7 @@ export function WorldTimelineView() {
   const { data: places } = usePlaces(worldId);
   const { data: characters } = useCharacters(worldId);
   const { viewMode, setViewMode } = useTimelineViewStore();
+  const reorderEvent = useReorderEvent(worldId);
 
   const [modalEvent, setModalEvent] = useState<EventItem | "new" | null>(null);
 
@@ -42,6 +44,13 @@ export function WorldTimelineView() {
     gridAxis === "place" ? hiddenPlaceIds : hiddenCharacterIds;
   const setHiddenLaneIds =
     gridAxis === "place" ? setHiddenPlaceIds : setHiddenCharacterIds;
+
+  function handleReorder(eventId: number, toIndex: number) {
+    const placement = placementForDrop(events ?? [], eventId, toIndex);
+    // 제자리에 놓았으면 서버를 부르지 않는다.
+    if (placement === null) return;
+    reorderEvent.mutate({ eventId, placement });
+  }
 
   function toggleLane(laneId: string) {
     setHiddenLaneIds((prev) => {
@@ -104,6 +113,7 @@ export function WorldTimelineView() {
             onSelectEvent={(id) =>
               setModalEvent(events?.find((e) => e.id === id) ?? null)
             }
+            onReorder={handleReorder}
           />
         )}
       </div>
