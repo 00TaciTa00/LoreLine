@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare (OpenNext 빌드 산출물 / wrangler 로컬 상태)
+/.open-next
+/.wrangler
+.dev.vars
+
+# local agent tooling state
+/.omc
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

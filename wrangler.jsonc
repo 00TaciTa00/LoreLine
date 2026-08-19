@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "loreline",
+  "main": ".open-next/worker.js",
+  // nodejs_compat: Next.js 서버 런타임이 node: 내장 모듈을 사용하므로 필요.
+  // global_fetch_strictly_public: OpenNext 권장 설정.
+  "compatibility_date": "2025-03-25",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // NOTE: DATABASE_URL은 여기에 넣지 않는다. 민감 정보이므로
+  // Cloudflare 대시보드(Workers & Pages > 프로젝트 > Settings > Variables and
+  // Secrets)에 Secret으로 등록하거나 `wrangler secret put DATABASE_URL`로 넣는다.
+}
