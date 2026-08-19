@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, asc, eq, isNull } from "drizzle-orm";
 
 import { character, event, eventCharacter, withDb } from "@/lib/db";
-import { serializeEvent } from "@/lib/db/serialize";
+import { serializeCharacter, serializeEvent } from "@/lib/db/serialize";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 import { characterOrder } from "@/lib/db/orderable-tables";
 import { resolveSortKey } from "@/lib/db/ordering";
@@ -98,7 +98,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ character: updated });
+  return NextResponse.json({ character: serializeCharacter(updated) });
 }
 
 // DELETE /api/worlds/:worldId/characters/:characterId - 소프트 삭제
@@ -119,5 +119,5 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ character: deleted });
+  return NextResponse.json({ character: serializeCharacter(deleted) });
 }

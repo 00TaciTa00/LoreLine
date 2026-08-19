@@ -6,13 +6,13 @@ import { buildGrid, laneEventCounts } from "./grid";
 
 function place(id: number, name: string): Place {
   return {
-    id, worldId: 1, name, description: null, color: "#000",
+    id, worldId: 1, name, description: null, color: "#000", sortKey: "1000",
     createdAt: "", updatedAt: "", deletedAt: null,
   };
 }
 function character(id: number, name: string): Character {
   return {
-    id, worldId: 1, name, description: null, color: "#000",
+    id, worldId: 1, name, description: null, color: "#000", sortKey: "1000",
     createdAt: "", updatedAt: "", deletedAt: null,
   };
 }

@@ -6,6 +6,7 @@ import { isWorldAlive } from "@/lib/db/worlds";
 import { placeOrder } from "@/lib/db/orderable-tables";
 import { resolveSortKey } from "@/lib/db/ordering";
 import { pickColor } from "@/lib/colors";
+import { serializePlace } from "@/lib/db/serialize";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
@@ -22,7 +23,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .orderBy(asc(place.sortKey)),
   );
 
-  return NextResponse.json({ places });
+  return NextResponse.json({ places: places.map(serializePlace) });
 }
 
 // POST /api/worlds/:worldId/places - 공간 생성
@@ -77,5 +78,5 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  return NextResponse.json({ place: created }, { status: 201 });
+  return NextResponse.json({ place: serializePlace(created) }, { status: 201 });
 }

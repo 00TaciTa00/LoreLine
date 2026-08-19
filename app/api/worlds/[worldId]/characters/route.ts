@@ -6,6 +6,7 @@ import { isWorldAlive } from "@/lib/db/worlds";
 import { characterOrder } from "@/lib/db/orderable-tables";
 import { resolveSortKey } from "@/lib/db/ordering";
 import { pickColor } from "@/lib/colors";
+import { serializeCharacter } from "@/lib/db/serialize";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
@@ -24,7 +25,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .orderBy(asc(character.sortKey)),
   );
 
-  return NextResponse.json({ characters });
+  return NextResponse.json({ characters: characters.map(serializeCharacter) });
 }
 
 // POST /api/worlds/:worldId/characters - 인물 생성
@@ -81,5 +82,5 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  return NextResponse.json({ character: created }, { status: 201 });
+  return NextResponse.json({ character: serializeCharacter(created) }, { status: 201 });
 }

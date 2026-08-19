@@ -13,6 +13,8 @@ export type Place = {
   name: string;
   description: string | null;
   color: string;
+  /** 목록·격자 열 순서. BIGINT라 문자열로 온다. */
+  sortKey: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -24,6 +26,8 @@ export type Character = {
   name: string;
   description: string | null;
   color: string;
+  /** 목록·격자 열 순서. BIGINT라 문자열로 온다. */
+  sortKey: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

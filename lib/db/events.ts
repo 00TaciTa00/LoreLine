@@ -2,14 +2,15 @@ import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 
 import type { Db } from "./index";
 import { character, event, eventCharacter, eventPlace, place } from "./schema";
-import { serializeEvent } from "./serialize";
-
-type PlaceRow = typeof place.$inferSelect;
-type CharacterRow = typeof character.$inferSelect;
+import {
+  serializeCharacter,
+  serializeEvent,
+  serializePlace,
+} from "./serialize";
 
 export type EventWithRelations = ReturnType<typeof serializeEvent> & {
-  places: PlaceRow[];
-  characters: CharacterRow[];
+  places: ReturnType<typeof serializePlace>[];
+  characters: ReturnType<typeof serializeCharacter>[];
 };
 
 /**
@@ -41,17 +42,23 @@ async function attachRelations(
       ),
   ]);
 
-  const placesByEvent = new Map<number, PlaceRow[]>();
+  const placesByEvent = new Map<
+    number,
+    ReturnType<typeof serializePlace>[]
+  >();
   for (const link of placeLinks) {
     const list = placesByEvent.get(link.eventId) ?? [];
-    list.push(link.place);
+    list.push(serializePlace(link.place));
     placesByEvent.set(link.eventId, list);
   }
 
-  const charactersByEvent = new Map<number, CharacterRow[]>();
+  const charactersByEvent = new Map<
+    number,
+    ReturnType<typeof serializeCharacter>[]
+  >();
   for (const link of characterLinks) {
     const list = charactersByEvent.get(link.eventId) ?? [];
-    list.push(link.character);
+    list.push(serializeCharacter(link.character));
     charactersByEvent.set(link.eventId, list);
   }
 
