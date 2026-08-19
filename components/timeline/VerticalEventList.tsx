@@ -13,9 +13,11 @@ type VerticalEventListProps = {
 };
 
 /**
- * 좁은 화면(모바일)에서 vis-timeline 대신 사용하는 세로 스윔레인 뷰.
- * 레인(전체/공간/인물)마다 세로 섹션으로 쌓아 나란한 사건들도 스크롤만으로
- * 가독성 있게 확인할 수 있게 한다.
+ * vis-timeline 대신 사용하는 세로 스윔레인 뷰. 레인(전체/공간/인물)마다
+ * 세로 섹션으로 쌓아 나란한 사건들도 스크롤만으로 가독성 있게 확인할 수 있다.
+ *
+ * 좁은 화면에서는 자동으로 이 뷰가 쓰이고, 넓은 화면에서도 방향 토글로
+ * 선택할 수 있다. 넓은 화면에서 줄이 과도하게 길어지지 않도록 최대 폭을 둔다.
  */
 export function VerticalEventList({
   events,
@@ -35,7 +37,7 @@ export function VerticalEventList({
   }
 
   return (
-    <div className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-4">
+    <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-6 overflow-y-auto px-4 py-4 sm:px-6">
       {lanes.map((lane) => {
         const items = itemsByLane.get(lane.id) ?? [];
         return (
