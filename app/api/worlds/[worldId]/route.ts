@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, isNull } from "drizzle-orm";
 
 import { withDb, world } from "@/lib/db";
+import { softDeleteWorld } from "@/lib/db/worlds";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
 
@@ -57,18 +58,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/worlds/:worldId - 소프트 삭제
-// NOTE: 하위 Timeline/Event/Place/Character는 별도로 소프트 삭제하지 않는다.
-// 목록/조회 API는 world가 삭제된 세계관의 자식 데이터를 노출하지 않도록
-// 클라이언트에서 삭제된 세계관을 더 이상 선택하지 않는 것으로 충분하다.
+// 하위 Timeline/Event/Place/Character도 함께 소프트 삭제된다.
+// (자세한 이유는 lib/db/worlds.ts의 softDeleteWorld 주석 참고)
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { worldId } = await params;
 
-  const [deleted] = await withDb((db) =>
-    db
-      .update(world)
-      .set({ deletedAt: new Date() })
-      .where(and(eq(world.id, Number(worldId)), isNull(world.deletedAt)))
-      .returning(),
+  const deleted = await withDb((db) =>
+    softDeleteWorld(db, Number(worldId)),
   );
 
   if (!deleted) {
