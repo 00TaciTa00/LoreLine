@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { fetchJson } from "@/lib/api/client";
-import type { EventItem, Place } from "@/lib/api/types";
+import type { EventSummary, Place } from "@/lib/api/types";
 
 export function usePlaces(worldId: number) {
   return useQuery({
@@ -17,7 +17,7 @@ export function usePlace(worldId: number, placeId: number) {
   return useQuery({
     queryKey: ["worlds", worldId, "places", placeId],
     queryFn: () =>
-      fetchJson<{ place: Place; events: EventItem[] }>(
+      fetchJson<{ place: Place; events: EventSummary[] }>(
         `/api/worlds/${worldId}/places/${placeId}`,
       ),
     enabled: Number.isFinite(worldId) && Number.isFinite(placeId),

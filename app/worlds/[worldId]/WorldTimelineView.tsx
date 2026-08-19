@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { EventCardList } from "@/components/timeline/EventCardList";
@@ -19,7 +19,6 @@ import { useTimelineViewStore } from "@/store/useTimelineViewStore";
 export function WorldTimelineView() {
   const params = useParams<{ worldId: string }>();
   const worldId = Number(params.worldId);
-  const searchParams = useSearchParams();
 
   const { data: events, isLoading: eventsLoading } = useEvents(worldId);
   const { data: places } = usePlaces(worldId);
@@ -51,21 +50,6 @@ export function WorldTimelineView() {
       else next.add(laneId);
       return next;
     });
-  }
-
-  // 교차 탐색: 공간/인물 목록 페이지에서 ?eventId=로 넘어오면 해당 사건을 바로 연다.
-  // (렌더 중 상태를 조정하는 패턴 - eventIdParam이 바뀔 때만 한 번 실행되도록
-  // handledEventIdParam으로 가드한다: https://react.dev/learn/you-might-not-need-an-effect)
-  const [handledEventIdParam, setHandledEventIdParam] = useState<string | null>(
-    null,
-  );
-  const eventIdParam = searchParams.get("eventId");
-  if (eventIdParam && eventIdParam !== handledEventIdParam && events) {
-    const found = events.find((e) => e.id === Number(eventIdParam));
-    if (found) {
-      setHandledEventIdParam(eventIdParam);
-      setModalEvent(found);
-    }
   }
 
   return (

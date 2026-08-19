@@ -29,6 +29,26 @@ export type Character = {
   deletedAt: string | null;
 };
 
+/**
+ * 공간·인물 관계 없이 사건 자체만 담은 형태.
+ *
+ * 공간/인물 상세 API(`/places/:id`, `/characters/:id`)의 관련 사건 목록이
+ * 이 모양으로 온다. 관계까지 필요하면 `useEvents`의 EventItem을 쓸 것.
+ */
+export type EventSummary = {
+  id: number;
+  worldId: number;
+  timelineId: number;
+  title: string;
+  description: string | null;
+  displayTime: string;
+  sortKey: string;
+  color: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
 // sort_key(BIGINT)는 API 응답에서 문자열로 직렬화된다.
 export type EventItem = {
   id: number;

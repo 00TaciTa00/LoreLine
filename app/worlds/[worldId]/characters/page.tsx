@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
 import {
@@ -11,7 +11,7 @@ import {
   isEmptyRichText,
   richTextToPlainText,
 } from "@/components/ui/RichTextEditor";
-import type { Character } from "@/lib/api/types";
+import type { Character, EventItem } from "@/lib/api/types";
 import { pickColor } from "@/lib/colors";
 import {
   useCharacter,
@@ -20,16 +20,29 @@ import {
   useDeleteCharacter,
   useUpdateCharacter,
 } from "@/lib/query/characters";
+import { useEvents } from "@/lib/query/events";
+import { usePlaces } from "@/lib/query/places";
 
 export default function CharactersPage() {
   const params = useParams<{ worldId: string }>();
   const worldId = Number(params.worldId);
 
   const { data: characters, isLoading } = useCharacters(worldId);
+  const { data: places } = usePlaces(worldId);
+  // 사건 상세를 이 페이지에서 바로 열기 위해 전체 사건 목록이 필요하다.
+  // 인물 상세 API가 주는 등장 사건에는 공간·인물 관계가 빠져 있어 모달에 쓸 수 없다.
+  const { data: events } = useEvents(worldId);
+
   const [modalCharacter, setModalCharacter] = useState<Character | "new" | null>(
     null,
   );
+  const [modalEvent, setModalEvent] = useState<EventItem | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  function openEvent(eventId: number) {
+    const found = events?.find((e) => e.id === eventId);
+    if (found) setModalEvent(found);
+  }
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
@@ -95,7 +108,11 @@ export default function CharactersPage() {
               </div>
 
               {expandedId === c.id && (
-                <RelatedEvents worldId={worldId} characterId={c.id} />
+                <RelatedEvents
+                  worldId={worldId}
+                  characterId={c.id}
+                  onSelectEvent={openEvent}
+                />
               )}
             </li>
           ))}
@@ -110,6 +127,17 @@ export default function CharactersPage() {
           onClose={() => setModalCharacter(null)}
         />
       )}
+
+      {modalEvent && (
+        <EventFormModal
+          worldId={worldId}
+          event={modalEvent}
+          places={places ?? []}
+          characters={characters ?? []}
+          events={events ?? []}
+          onClose={() => setModalEvent(null)}
+        />
+      )}
     </div>
   );
 }
@@ -117,9 +145,11 @@ export default function CharactersPage() {
 function RelatedEvents({
   worldId,
   characterId,
+  onSelectEvent,
 }: {
   worldId: number;
   characterId: number;
+  onSelectEvent: (eventId: number) => void;
 }) {
   const { data, isLoading } = useCharacter(worldId, characterId);
 
@@ -138,12 +168,13 @@ function RelatedEvents({
     <ul className="mt-2 flex flex-col gap-1 border-t border-zinc-100 pt-2 dark:border-zinc-800">
       {data.events.map((ev) => (
         <li key={ev.id}>
-          <Link
-            href={`/worlds/${worldId}?eventId=${ev.id}`}
-            className="text-sm text-zinc-600 hover:underline dark:text-zinc-400"
+          <button
+            type="button"
+            onClick={() => onSelectEvent(ev.id)}
+            className="text-left text-sm text-zinc-600 hover:underline dark:text-zinc-400"
           >
             {ev.displayTime} · {ev.title}
-          </Link>
+          </button>
         </li>
       ))}
     </ul>
