@@ -4,7 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { event, eventCharacter, eventPlace, withDb } from "@/lib/db";
 import { getEventWithRelations } from "@/lib/db/events";
 import { serializeEvent } from "@/lib/db/serialize";
-import { resolveSortKeyForInsert } from "@/lib/db/sort-key";
+import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 
 type RouteParams = { params: Promise<{ worldId: string; eventId: string }> };
 
@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 // PATCH /api/worlds/:worldId/events/:eventId - 수정
 //
 // body: title, description, displayTime, color, placeIds, characterIds,
-//       afterEventId(재정렬, undefined면 순서 유지)
+//       placement("first" | "end" | 사건 id, 없으면 순서 유지)
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { eventId } = await params;
   const eventIdNum = Number(eventId);
@@ -56,15 +56,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     if (!current) return null;
 
-    const sortKey =
-      body.afterEventId !== undefined
-        ? await resolveSortKeyForInsert(
-            db,
-            current.timelineId,
-            body.afterEventId === null ? null : Number(body.afterEventId),
-            eventIdNum,
-          )
-        : undefined;
+    // placement가 없거나 해석되지 않으면 현재 순서를 그대로 둔다.
+    const target = parsePlacement(body.placement);
+    const sortKey = target
+      ? await resolveSortKeyForInsert(
+          db,
+          current.timelineId,
+          target,
+          eventIdNum,
+        )
+      : undefined;
 
     await db.transaction(async (tx) => {
       await tx

@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { EventTimeline } from "@/components/timeline/EventTimeline";
+import { OrientationToggle } from "@/components/timeline/OrientationToggle";
 import { VerticalEventList } from "@/components/timeline/VerticalEventList";
 import { ViewToggle } from "@/components/timeline/ViewToggle";
 import type { EventItem } from "@/lib/api/types";
@@ -22,8 +23,11 @@ export function WorldTimelineView() {
   const { data: events, isLoading: eventsLoading } = useEvents(worldId);
   const { data: places } = usePlaces(worldId);
   const { data: characters } = useCharacters(worldId);
-  const { viewMode, setViewMode } = useTimelineViewStore();
+  const { viewMode, setViewMode, orientation, setOrientation } =
+    useTimelineViewStore();
   const isNarrow = useIsNarrowScreen();
+  // 좁은 화면에서는 가로 연표의 가독성이 떨어져 세로를 강제한다.
+  const showVertical = isNarrow || orientation === "vertical";
 
   const [modalEvent, setModalEvent] = useState<EventItem | "new" | null>(null);
 
@@ -45,7 +49,14 @@ export function WorldTimelineView() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 px-4 py-2 dark:border-zinc-800 sm:px-6">
-        <ViewToggle value={viewMode} onChange={setViewMode} />
+        <div className="flex flex-wrap items-center gap-2">
+          <ViewToggle value={viewMode} onChange={setViewMode} />
+          <OrientationToggle
+            value={orientation}
+            onChange={setOrientation}
+            forcedVertical={isNarrow}
+          />
+        </div>
         <button
           type="button"
           onClick={() => setModalEvent("new")}
@@ -63,7 +74,7 @@ export function WorldTimelineView() {
             아직 등록된 사건이 없습니다. 공간·인물을 먼저 만든 뒤 사건을
             추가해보세요.
           </p>
-        ) : isNarrow ? (
+        ) : showVertical ? (
           <VerticalEventList
             events={events ?? []}
             places={places ?? []}
@@ -92,6 +103,7 @@ export function WorldTimelineView() {
           event={modalEvent === "new" ? null : modalEvent}
           places={places ?? []}
           characters={characters ?? []}
+          events={events ?? []}
           onClose={() => setModalEvent(null)}
         />
       )}

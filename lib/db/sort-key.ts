@@ -82,8 +82,19 @@ export async function rebalanceTimeline(
 }
 
 /**
- * afterEventId가 없으면 시퀀스 맨 끝에, 있으면 해당 이벤트 바로 뒤에
- * 삽입할 sort_key를 계산한다. 간격이 좁아 재정렬이 필요하면
+ * 사건을 시퀀스 어디에 놓을지 나타낸다.
+ *
+ * NOTE: 예전에는 `afterEventId: number | null`로 표현했는데, null이
+ * "맨 앞"이 아니라 "맨 뒤"를 뜻해서 맨 앞으로 옮길 방법이 아예 없었다.
+ * 세 경우를 명시적으로 구분한다.
+ */
+export type InsertTarget =
+  | { kind: "end" }
+  | { kind: "first" }
+  | { kind: "after"; eventId: number };
+
+/**
+ * target 위치에 삽입할 sort_key를 계산한다. 간격이 좁아 재정렬이 필요하면
  * rebalanceTimeline()을 먼저 실행한 뒤 재계산한다.
  *
  * excludeEventId: 이벤트 수정(재정렬) 시 자기 자신을 시퀀스에서 제외하기 위함.
@@ -91,7 +102,7 @@ export async function rebalanceTimeline(
 export async function resolveSortKeyForInsert(
   db: Db,
   timelineId: number,
-  afterEventId: number | null,
+  target: InsertTarget,
   excludeEventId?: number,
 ): Promise<bigint> {
   const siblings = (
@@ -102,14 +113,22 @@ export async function resolveSortKeyForInsert(
       .orderBy(asc(event.sortKey))
   ).filter((s) => s.id !== excludeEventId);
 
-  if (afterEventId === null) {
-    const last = siblings.at(-1)?.sortKey ?? null;
-    return appendSortKey(last);
+  if (target.kind === "end") {
+    return appendSortKey(siblings.at(-1)?.sortKey ?? null);
   }
 
-  const idx = siblings.findIndex((s) => s.id === afterEventId);
-  const before = siblings[idx]?.sortKey ?? null;
-  const after = siblings[idx + 1]?.sortKey ?? null;
+  // 맨 앞은 첫 사건보다 INITIAL_GAP 앞에 둔다. 반복하면 sort_key가 음수로
+  // 내려가는데, 정렬 전용 값이므로 문제되지 않는다.
+  const [before, after] =
+    target.kind === "first"
+      ? [null, siblings[0]?.sortKey ?? null]
+      : (() => {
+          const idx = siblings.findIndex((s) => s.id === target.eventId);
+          return [
+            siblings[idx]?.sortKey ?? null,
+            siblings[idx + 1]?.sortKey ?? null,
+          ] as const;
+        })();
 
   const result = insertSortKey(before, after);
   if (!result.needsRebalance) {
@@ -117,5 +136,23 @@ export async function resolveSortKeyForInsert(
   }
 
   await rebalanceTimeline(db, timelineId);
-  return resolveSortKeyForInsert(db, timelineId, afterEventId, excludeEventId);
+  return resolveSortKeyForInsert(db, timelineId, target, excludeEventId);
+}
+
+/**
+ * 클라이언트가 보낸 placement 값을 InsertTarget으로 변환한다.
+ * - undefined  : 호출자가 기본값을 정한다(생성은 "end", 수정은 "순서 유지")
+ * - "first"    : 맨 앞으로
+ * - "end"      : 맨 뒤로
+ * - 숫자/숫자문자열 : 해당 사건 바로 뒤로
+ */
+export function parsePlacement(value: unknown): InsertTarget | null {
+  if (value === "first") return { kind: "first" };
+  if (value === "end") return { kind: "end" };
+
+  const eventId = Number(value);
+  if (Number.isInteger(eventId) && eventId > 0) {
+    return { kind: "after", eventId };
+  }
+  return null;
 }

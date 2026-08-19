@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { event, eventCharacter, eventPlace, withDb } from "@/lib/db";
 import { getEventWithRelations, listEventsWithRelations } from "@/lib/db/events";
-import { resolveSortKeyForInsert } from "@/lib/db/sort-key";
+import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { getOrCreateDefaultTimeline } from "@/lib/db/timelines";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 //   description, color (선택)
 //   placeIds: number[] (필수, 최소 1개)
 //   characterIds: number[] (필수, 최소 1개)
-//   afterEventId (선택) - 지정 시 해당 이벤트 바로 뒤에 삽입, 없으면 맨 끝에 추가
+//   placement (선택) - "first" | "end" | 사건 id(그 뒤에 삽입). 기본값은 맨 끝
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { worldId } = await params;
   const body = await request.json();
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const sortKey = await resolveSortKeyForInsert(
       db,
       timelineId,
-      body.afterEventId ? Number(body.afterEventId) : null,
+      parsePlacement(body.placement) ?? { kind: "end" },
     );
 
     const createdId = await db.transaction(async (tx) => {

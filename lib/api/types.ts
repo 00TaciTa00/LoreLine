@@ -46,6 +46,12 @@ export type EventItem = {
   characters: Character[];
 };
 
+/**
+ * 사건을 시퀀스 어디에 놓을지. "first"=맨 앞, "end"=맨 뒤,
+ * 숫자=해당 사건 바로 뒤. 생략하면 생성 시 맨 뒤, 수정 시 순서 유지.
+ */
+export type EventPlacement = "first" | "end" | number;
+
 export type EventInput = {
   title: string;
   displayTime: string;
@@ -53,5 +59,5 @@ export type EventInput = {
   color?: string | null;
   placeIds: number[];
   characterIds: number[];
-  afterEventId?: number | null;
+  placement?: EventPlacement;
 };

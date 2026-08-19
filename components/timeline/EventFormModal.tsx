@@ -5,7 +5,12 @@ import { useState } from "react";
 
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
-import type { Character, EventItem, Place } from "@/lib/api/types";
+import type {
+  Character,
+  EventItem,
+  EventPlacement,
+  Place,
+} from "@/lib/api/types";
 import { useCreateEvent, useDeleteEvent, useUpdateEvent } from "@/lib/query/events";
 
 type EventFormModalProps = {
@@ -13,14 +18,20 @@ type EventFormModalProps = {
   event: EventItem | null;
   places: Place[];
   characters: Character[];
+  /** 작중 시간순으로 정렬된 같은 세계관의 사건들 (순서 지정 선택지로 사용) */
+  events: EventItem[];
   onClose: () => void;
 };
+
+/** 순서를 바꾸지 않음을 나타내는 select 값 (수정 시 기본값) */
+const KEEP_ORDER = "keep";
 
 export function EventFormModal({
   worldId,
   event,
   places,
   characters,
+  events,
   onClose,
 }: EventFormModalProps) {
   const createEvent = useCreateEvent(worldId);
@@ -37,11 +48,23 @@ export function EventFormModal({
   const [characterIds, setCharacterIds] = useState<number[]>(
     event?.characters.map((c) => c.id) ?? [],
   );
+  // 수정 시에는 기본이 "순서 유지", 생성 시에는 "맨 뒤".
+  const [placement, setPlacement] = useState<string>(
+    event ? KEEP_ORDER : "end",
+  );
   const [error, setError] = useState<string | null>(null);
 
   const isPending = createEvent.isPending || updateEvent.isPending;
   const selectedPlaces = places.filter((p) => placeIds.includes(p.id));
   const selectedCharacters = characters.filter((c) => characterIds.includes(c.id));
+  // 자기 자신 뒤로 보내는 선택지는 의미가 없으므로 제외한다.
+  const otherEvents = events.filter((e) => e.id !== event?.id);
+
+  function toPlacement(): EventPlacement | undefined {
+    if (placement === KEEP_ORDER) return undefined;
+    if (placement === "first" || placement === "end") return placement;
+    return Number(placement);
+  }
 
   function toggle(list: number[], id: number, setter: (v: number[]) => void) {
     setter(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
@@ -70,6 +93,7 @@ export function EventFormModal({
           color,
           placeIds,
           characterIds,
+          placement: toPlacement(),
         });
       } else {
         await createEvent.mutateAsync({
@@ -79,6 +103,7 @@ export function EventFormModal({
           color,
           placeIds,
           characterIds,
+          placement: toPlacement(),
         });
       }
       onClose();
@@ -118,6 +143,33 @@ export function EventFormModal({
           rows={3}
           className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
         />
+
+        <div>
+          <label
+            htmlFor="event-placement"
+            className="mb-1.5 block text-sm text-zinc-600 dark:text-zinc-400"
+          >
+            작중 순서
+          </label>
+          <select
+            id="event-placement"
+            value={placement}
+            onChange={(e) => setPlacement(e.target.value)}
+            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          >
+            {event && <option value={KEEP_ORDER}>순서 유지</option>}
+            <option value="first">맨 앞으로</option>
+            <option value="end">맨 뒤로</option>
+            {otherEvents.map((e) => (
+              <option key={e.id} value={String(e.id)}>
+                {e.displayTime} · {e.title} 다음으로
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-zinc-500">
+            작중 시각 라벨과 별개로, 연표에 놓이는 순서를 정합니다.
+          </p>
+        </div>
 
         <div>
           <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
