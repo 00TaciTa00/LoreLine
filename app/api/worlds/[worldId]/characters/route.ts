@@ -4,6 +4,7 @@ import { and, count, eq, isNull } from "drizzle-orm";
 import { character, withDb } from "@/lib/db";
 import { isWorldAlive } from "@/lib/db/worlds";
 import { pickColor } from "@/lib/colors";
+import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
 
@@ -36,6 +37,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
+  const parsedColor = parseColor(body.color);
+  if (!parsedColor.ok) {
+    return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
+  }
+
   const created = await withDb(async (db) => {
     if (!(await isWorldAlive(db, worldIdNum))) return null;
 
@@ -52,7 +58,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         worldId: worldIdNum,
         name: body.name,
         description: body.description ?? null,
-        color: body.color ?? pickColor(existingCount),
+        color: parsedColor.color ?? pickColor(existingCount),
       })
       .returning();
 

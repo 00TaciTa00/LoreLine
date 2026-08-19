@@ -5,6 +5,7 @@ import { getEventWithRelations, listEventsWithRelations } from "@/lib/db/events"
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { getOrCreateDefaultTimeline } from "@/lib/db/timelines";
 import { isWorldAlive } from "@/lib/db/worlds";
+import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
 
@@ -59,6 +60,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
+  // 사건 색상은 선택 사항이라 null도 허용한다.
+  const parsedColor = body.color === null ? null : parseColor(body.color);
+  if (parsedColor !== null && !parsedColor.ok) {
+    return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
+  }
+
   const created = await withDb(async (db) => {
     // 삭제된 세계관에 사건을 만들면 안 된다. getOrCreateDefaultTimeline이
     // 타임라인을 새로 만들어버리기 전에 먼저 막는다.
@@ -80,7 +87,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           title: body.title,
           description: body.description ?? null,
           displayTime: body.displayTime,
-          color: body.color ?? null,
+          color: parsedColor === null ? null : (parsedColor.color ?? null),
           sortKey,
         })
         .returning({ id: event.id });

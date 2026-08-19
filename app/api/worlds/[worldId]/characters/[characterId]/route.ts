@@ -3,6 +3,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 
 import { character, event, eventCharacter, withDb } from "@/lib/db";
 import { serializeEvent } from "@/lib/db/serialize";
+import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = {
   params: Promise<{ worldId: string; characterId: string }>;
@@ -52,6 +53,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { characterId } = await params;
   const body = await request.json();
 
+  const parsedColor = parseColor(body.color);
+  if (!parsedColor.ok) {
+    return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
+  }
+
   const [updated] = await withDb((db) =>
     db
       .update(character)
@@ -60,7 +66,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         ...(body.description !== undefined
           ? { description: body.description }
           : {}),
-        ...(body.color !== undefined ? { color: body.color } : {}),
+        ...(parsedColor.color !== undefined
+          ? { color: parsedColor.color }
+          : {}),
         updatedAt: new Date(),
       })
       .where(

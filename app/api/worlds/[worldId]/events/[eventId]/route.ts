@@ -5,6 +5,7 @@ import { event, eventCharacter, eventPlace, withDb } from "@/lib/db";
 import { getEventWithRelations } from "@/lib/db/events";
 import { serializeEvent } from "@/lib/db/serialize";
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
+import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string; eventId: string }> };
 
@@ -48,6 +49,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
   }
 
+  // 사건 색상은 선택 사항이라 null(색 지움)도 허용한다.
+  const parsedColor = body.color === null ? null : parseColor(body.color);
+  if (parsedColor !== null && !parsedColor.ok) {
+    return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
+  }
+
   const updated = await withDb(async (db) => {
     const [current] = await db
       .select()
@@ -78,7 +85,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           ...(body.displayTime !== undefined
             ? { displayTime: body.displayTime }
             : {}),
-          ...(body.color !== undefined ? { color: body.color } : {}),
+          ...(body.color === null
+            ? { color: null }
+            : parsedColor !== null && parsedColor.color !== undefined
+              ? { color: parsedColor.color }
+              : {}),
           ...(sortKey !== undefined ? { sortKey } : {}),
           updatedAt: new Date(),
         })

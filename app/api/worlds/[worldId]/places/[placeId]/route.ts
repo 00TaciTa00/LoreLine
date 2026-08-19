@@ -3,6 +3,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 
 import { event, eventPlace, place, withDb } from "@/lib/db";
 import { serializeEvent } from "@/lib/db/serialize";
+import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string; placeId: string }> };
 
@@ -45,6 +46,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { placeId } = await params;
   const body = await request.json();
 
+  const parsedColor = parseColor(body.color);
+  if (!parsedColor.ok) {
+    return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
+  }
+
   const [updated] = await withDb((db) =>
     db
       .update(place)
@@ -53,7 +59,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         ...(body.description !== undefined
           ? { description: body.description }
           : {}),
-        ...(body.color !== undefined ? { color: body.color } : {}),
+        ...(parsedColor.color !== undefined
+          ? { color: parsedColor.color }
+          : {}),
         updatedAt: new Date(),
       })
       .where(and(eq(place.id, Number(placeId)), isNull(place.deletedAt)))
