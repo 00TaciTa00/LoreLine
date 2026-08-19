@@ -42,7 +42,7 @@ export default function Home() {
 
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-300">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
             세계관 목록
           </h2>
           <button
