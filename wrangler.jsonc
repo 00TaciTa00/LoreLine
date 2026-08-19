@@ -4,7 +4,7 @@
   "main": ".open-next/worker.js",
   // nodejs_compat: Next.js 서버 런타임이 node: 내장 모듈을 사용하므로 필요.
   // global_fetch_strictly_public: OpenNext 권장 설정.
-  "compatibility_date": "2025-03-25",
+  "compatibility_date": "2026-08-19",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",

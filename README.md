@@ -150,4 +150,27 @@ Cloudflare 대시보드에서 Git 연동으로 자동 빌드하는 경우 설정
   fetch 기반 `neon-http`는 세션 트랜잭션을 지원하지 않아
   (`db.transaction()` 호출 시 예외) 사용할 수 없다.
 
+### Windows에서 `cf:build`가 EPERM으로 실패할 때
+
+```
+Error: EPERM, Permission denied: ...\.open-next
+```
+
+`cf:build`는 시작할 때 `.open-next`를 통째로 지우는데, **`wrangler dev`(=`cf:preview`)가
+아직 떠 있으면** 그 자식 workerd 프로세스가 `.open-next/assets`를 잡고 있어 삭제가 실패한다.
+Windows는 열린 파일을 가진 디렉토리를 지울 수 없기 때문이다(Linux/WSL에서는 발생하지 않음).
+
+터미널에서 Ctrl+C로 껐더라도 workerd 자식 프로세스가 남는 경우가 있다. 남은 프로세스를 정리한다:
+
+```powershell
+Get-Process workerd -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
+  Where-Object { $_.CommandLine -match 'wrangler' } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+
+그 뒤 `npm run cf:build`를 다시 실행하면 된다. OpenNext 자체도 Windows를 완전히 지원하지는
+않는다고 경고하므로(빌드 시작 시 WARN 출력), 반복해서 문제가 생기면 WSL에서 빌드하는 편이 낫다.
+Cloudflare의 CI 빌드는 Linux에서 돌아가므로 이 이슈와 무관하다.
+
 배포 대상 선정 경위와 그 밖의 판단 근거는 [DECISIONS.md](./DECISIONS.md) 참고.
