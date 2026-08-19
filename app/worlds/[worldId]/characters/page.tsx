@@ -167,34 +167,46 @@ function CharacterFormModal({
   const [color, setColor] = useState(
     character?.color ?? pickColor(existingCount),
   );
+  const [error, setError] = useState<string | null>(null);
 
   const isPending = createCharacter.isPending || updateCharacter.isPending;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     if (!name.trim()) return;
 
-    if (character) {
-      await updateCharacter.mutateAsync({
-        name: name.trim(),
-        description: description.trim(),
-        color,
-      });
-    } else {
-      await createCharacter.mutateAsync({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        color,
-      });
+    try {
+      if (character) {
+        await updateCharacter.mutateAsync({
+          name: name.trim(),
+          description: description.trim(),
+          color,
+        });
+      } else {
+        await createCharacter.mutateAsync({
+          name: name.trim(),
+          description: description.trim() || undefined,
+          color,
+        });
+      }
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "저장에 실패했습니다.");
     }
-    onClose();
   }
 
   async function handleDelete() {
     if (!character) return;
     if (!confirm(`"${character.name}" 인물을 삭제할까요?`)) return;
-    await deleteCharacter.mutateAsync(character.id);
-    onClose();
+
+    setError(null);
+    try {
+      await deleteCharacter.mutateAsync(character.id);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "삭제에 실패했습니다.");
+    }
   }
 
   return (
@@ -220,6 +232,8 @@ function CharacterFormModal({
           </p>
           <ColorPicker value={color} onChange={setColor} />
         </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="mt-2 flex items-center justify-between">
           {character ? (

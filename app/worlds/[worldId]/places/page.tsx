@@ -161,34 +161,46 @@ function PlaceFormModal({
   const [name, setName] = useState(place?.name ?? "");
   const [description, setDescription] = useState(place?.description ?? "");
   const [color, setColor] = useState(place?.color ?? pickColor(existingCount));
+  const [error, setError] = useState<string | null>(null);
 
   const isPending = createPlace.isPending || updatePlace.isPending;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     if (!name.trim()) return;
 
-    if (place) {
-      await updatePlace.mutateAsync({
-        name: name.trim(),
-        description: description.trim(),
-        color,
-      });
-    } else {
-      await createPlace.mutateAsync({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        color,
-      });
+    try {
+      if (place) {
+        await updatePlace.mutateAsync({
+          name: name.trim(),
+          description: description.trim(),
+          color,
+        });
+      } else {
+        await createPlace.mutateAsync({
+          name: name.trim(),
+          description: description.trim() || undefined,
+          color,
+        });
+      }
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "저장에 실패했습니다.");
     }
-    onClose();
   }
 
   async function handleDelete() {
     if (!place) return;
     if (!confirm(`"${place.name}" 공간을 삭제할까요?`)) return;
-    await deletePlace.mutateAsync(place.id);
-    onClose();
+
+    setError(null);
+    try {
+      await deletePlace.mutateAsync(place.id);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "삭제에 실패했습니다.");
+    }
   }
 
   return (
@@ -214,6 +226,8 @@ function PlaceFormModal({
           </p>
           <ColorPicker value={color} onChange={setColor} />
         </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="mt-2 flex items-center justify-between">
           {place ? (
