@@ -127,15 +127,26 @@ npm run cf:preview   # 빌드 + 로컬 workerd에서 실행
 npm run cf:deploy    # 빌드 + Cloudflare에 배포
 ```
 
-Cloudflare 대시보드에서 Git 연동으로 자동 빌드하는 경우 설정값:
+### 배포 대상은 Pages가 아니라 Workers다
+
+OpenNext는 `.open-next/worker.js`(서버) + `.open-next/assets`(정적 파일)를 만들고
+`wrangler deploy`로 **Cloudflare Workers**에 올린다. Workers Static Assets 방식이다.
+
+**Cloudflare Pages 프로젝트로 만들면 안 된다.** Pages에 `.open-next/assets`를
+출력 디렉토리로 지정하면 정적 파일만 서빙되고 서버가 뜨지 않아, SSR 페이지와
+`/api/*` Route Handler가 전부 동작하지 않는다.
+
+Git 연동으로 자동 배포하려면 Pages가 아닌 **Workers Builds**를 쓴다
+(대시보드: Workers & Pages > 프로젝트 > Settings > Builds):
 
 | 항목 | 값 |
 | --- | --- |
 | Build command | `npm run cf:build` |
-| Build output directory | `.open-next/assets` |
+| Deploy command | `npx wrangler deploy` |
 | 환경변수(Secret) | `DATABASE_URL` (필수) |
 
 `DATABASE_URL`을 등록하지 않으면 요청 시점에 예외가 발생하므로 반드시 먼저 넣어야 한다.
+로컬에서 직접 배포할 때는 `npm run cf:deploy` 한 번이면 빌드와 배포가 같이 된다.
 
 ### 런타임 관련 주의점
 

@@ -24,6 +24,13 @@
 - **`export const runtime = "edge"`는 넣지 않았다.** OpenNext는 Next.js 서버를
   workerd의 Node 호환 런타임에서 실행하므로 edge runtime 선언이 필요 없다
   (`nodejs_compat` 플래그로 처리).
+- **배포 대상은 Pages가 아니라 Workers다.** 초기에 "Cloudflare Pages"로 이야기가 오갔고
+  README에도 Pages 대시보드 설정값을 적었었는데, 빌드 산출물을 확인해보니
+  `worker.js` + `assets/`를 만들고 `wrangler deploy`를 호출하는 **Workers Static Assets**
+  방식이었다. Pages 프로젝트로 만들어 `.open-next/assets`를 출력 디렉토리로 지정하면
+  정적 파일만 서빙되고 SSR·API 라우트가 전부 죽으므로, Git 연동은 Pages가 아니라
+  **Workers Builds**를 써야 한다. (스펙 문구가 "Cloudflare Pages"였던 것은
+  next-on-pages 시절 기준이고, 어댑터를 OpenNext로 바꾸면서 배포 표면도 바뀐 것이다.)
 
 ### DB 드라이버: `neon-http` → `neon-serverless` (WebSocket)
 
