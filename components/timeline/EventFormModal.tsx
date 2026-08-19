@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { RichTextEditor, isEmptyRichText } from "@/components/ui/RichTextEditor";
 import type {
   Character,
@@ -65,10 +66,6 @@ export function EventFormModal({
     if (placement === KEEP_ORDER) return undefined;
     if (placement === "first" || placement === "end") return placement;
     return Number(placement);
-  }
-
-  function toggle(list: number[], id: number, setter: (v: number[]) => void) {
-    setter(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -180,75 +177,23 @@ export function EventFormModal({
           <ColorPicker value={color} onChange={setColor} />
         </div>
 
-        <fieldset>
-          <legend className="mb-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            공간 (필수, 다중 선택)
-          </legend>
-          <div className="flex flex-wrap gap-2">
-            {places.length === 0 && (
-              <p className="text-sm text-zinc-400">
-                등록된 공간이 없습니다. 먼저 공간을 만드세요.
-              </p>
-            )}
-            {places.map((p) => (
-              <label
-                key={p.id}
-                className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm ${
-                  placeIds.includes(p.id)
-                    ? "border-zinc-900 dark:border-zinc-50"
-                    : "border-zinc-300 dark:border-zinc-700"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={placeIds.includes(p.id)}
-                  onChange={() => toggle(placeIds, p.id, setPlaceIds)}
-                />
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: p.color }}
-                />
-                {p.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <MultiSelect
+          label="공간 (필수, 다중 선택)"
+          options={places}
+          selectedIds={placeIds}
+          onChange={setPlaceIds}
+          emptyHint="등록된 공간이 없습니다. 먼저 공간을 만드세요."
+          placeholder="공간 검색"
+        />
 
-        <fieldset>
-          <legend className="mb-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            인물 (필수, 다중 선택)
-          </legend>
-          <div className="flex flex-wrap gap-2">
-            {characters.length === 0 && (
-              <p className="text-sm text-zinc-400">
-                등록된 인물이 없습니다. 먼저 인물을 만드세요.
-              </p>
-            )}
-            {characters.map((c) => (
-              <label
-                key={c.id}
-                className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm ${
-                  characterIds.includes(c.id)
-                    ? "border-zinc-900 dark:border-zinc-50"
-                    : "border-zinc-300 dark:border-zinc-700"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={characterIds.includes(c.id)}
-                  onChange={() => toggle(characterIds, c.id, setCharacterIds)}
-                />
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: c.color }}
-                />
-                {c.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <MultiSelect
+          label="인물 (필수, 다중 선택)"
+          options={characters}
+          selectedIds={characterIds}
+          onChange={setCharacterIds}
+          emptyHint="등록된 인물이 없습니다. 먼저 인물을 만드세요."
+          placeholder="인물 검색"
+        />
 
         {(selectedPlaces.length > 0 || selectedCharacters.length > 0) && (
           <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-zinc-100 pt-2 text-xs text-zinc-500 dark:border-zinc-800">
