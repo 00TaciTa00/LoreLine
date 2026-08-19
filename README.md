@@ -127,6 +127,17 @@ npm run cf:preview   # 빌드 + 로컬 workerd에서 실행
 npm run cf:deploy    # 빌드 + Cloudflare에 배포
 ```
 
+### Node 버전은 `.nvmrc`로 고정한다
+
+CI가 `npm ci`에서 *"can only install packages when your package.json and
+package-lock.json are in sync / Missing: esbuild@… from lock file"*로 실패하면,
+대개 lock 파일이 깨진 게 아니라 **npm 메이저 버전이 달라서**다. npm 10과 11은
+lock 트리를 다르게 기록해서, npm 11로 만든 lock을 npm 10이 읽으면 누락으로 본다.
+
+`.nvmrc`에 `24`를 두어 CI가 로컬과 같은 npm 11 계열을 쓰게 했다.
+(Node 24 → npm 11.x, 로컬 Node 25 → npm 11.x) 이 파일을 지우면 CI가 기본
+Node 22(npm 10)로 돌아가 같은 실패가 재발한다.
+
 ### 배포 대상은 Pages가 아니라 Workers다
 
 OpenNext는 `.open-next/worker.js`(서버) + `.open-next/assets`(정적 파일)를 만들고
@@ -135,6 +146,13 @@ OpenNext는 `.open-next/worker.js`(서버) + `.open-next/assets`(정적 파일)�
 **Cloudflare Pages 프로젝트로 만들면 안 된다.** Pages에 `.open-next/assets`를
 출력 디렉토리로 지정하면 정적 파일만 서빙되고 서버가 뜨지 않아, SSR 페이지와
 `/api/*` Route Handler가 전부 동작하지 않는다.
+
+Pages 빌드는 `wrangler.toml`에 `pages_build_output_dir`가 있기를 기대하므로
+우리 `wrangler.jsonc`(Workers 설정: `main` + `assets`)를 "유효하지 않다"며
+건너뛴다. Pages용 어댑터인 `@cloudflare/next-on-pages`는 `next <=15.5.2`만
+지원해서 이 프로젝트(Next 16)에는 설치조차 되지 않는다. 즉 **Pages로 가려면
+Next.js를 메이저 다운그레이드해야 하므로, Workers가 사실상 유일한 선택지다.**
+Cloudflare 공식 Next.js 가이드도 이 어댑터를 Workers 기준으로 안내한다.
 
 Git 연동으로 자동 배포하려면 Pages가 아닌 **Workers Builds**를 쓴다
 (대시보드: Workers & Pages > 프로젝트 > Settings > Builds):
