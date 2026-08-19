@@ -12,7 +12,7 @@ import {
   world,
 } from "./schema";
 import { createTestDb } from "./test-db";
-import { softDeleteWorld } from "./worlds";
+import { isWorldAlive, softDeleteWorld } from "./worlds";
 
 /**
  * 세계관 소프트 삭제가 하위 데이터까지 일관되게 정리하는지 검증한다.
@@ -179,5 +179,27 @@ describe("softDeleteWorld", () => {
 
     expect(await softDeleteWorld(db, worldId)).not.toBeNull();
     expect(await softDeleteWorld(db, worldId)).toBeNull();
+  });
+
+  describe("isWorldAlive", () => {
+    it("살아있는 세계관은 true", async () => {
+      const { worldId } = await seedWorld("생존");
+      expect(await isWorldAlive(db, worldId)).toBe(true);
+    });
+
+    it("삭제된 세계관은 false", async () => {
+      const { worldId } = await seedWorld("삭제됨");
+      await softDeleteWorld(db, worldId);
+      expect(await isWorldAlive(db, worldId)).toBe(false);
+    });
+
+    it("없는 id는 false", async () => {
+      expect(await isWorldAlive(db, 99999)).toBe(false);
+    });
+
+    it("숫자가 아닌 id(NaN)는 DB를 타지 않고 false", async () => {
+      // 라우트에서 Number("abc") = NaN이 넘어올 수 있다.
+      expect(await isWorldAlive(db, Number("abc"))).toBe(false);
+    });
   });
 });

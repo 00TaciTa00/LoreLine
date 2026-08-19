@@ -4,6 +4,7 @@ import { event, eventCharacter, eventPlace, withDb } from "@/lib/db";
 import { getEventWithRelations, listEventsWithRelations } from "@/lib/db/events";
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { getOrCreateDefaultTimeline } from "@/lib/db/timelines";
+import { isWorldAlive } from "@/lib/db/worlds";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
 
@@ -59,6 +60,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 
   const created = await withDb(async (db) => {
+    // 삭제된 세계관에 사건을 만들면 안 된다. getOrCreateDefaultTimeline이
+    // 타임라인을 새로 만들어버리기 전에 먼저 막는다.
+    if (!(await isWorldAlive(db, worldIdNum))) return null;
+
     const timelineId = await getOrCreateDefaultTimeline(db, worldIdNum);
     const sortKey = await resolveSortKeyForInsert(
       db,
@@ -98,6 +103,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return getEventWithRelations(db, createdId);
   });
+
+  if (!created) {
+    return NextResponse.json(
+      { error: "세계관을 찾을 수 없습니다." },
+      { status: 404 },
+    );
+  }
 
   return NextResponse.json({ event: created }, { status: 201 });
 }

@@ -6,6 +6,27 @@ import { character, event, place, timeline, world } from "./schema";
 type WorldRow = typeof world.$inferSelect;
 
 /**
+ * 세계관이 존재하고 아직 삭제되지 않았는지 확인한다.
+ *
+ * 하위 데이터를 만드는 API(POST places/characters/events)는 world_id를 그대로
+ * 받아 쓰기 때문에, 이 확인이 없으면 이미 삭제된 세계관에도 새 공간·인물·사건을
+ * 만들 수 있다. 만들어진 데이터는 어느 목록에도 안 나타나면서 DB에만 쌓인다.
+ */
+export async function isWorldAlive(
+  db: Db,
+  worldId: number,
+): Promise<boolean> {
+  if (!Number.isInteger(worldId)) return false;
+
+  const [found] = await db
+    .select({ id: world.id })
+    .from(world)
+    .where(and(eq(world.id, worldId), isNull(world.deletedAt)));
+
+  return found !== undefined;
+}
+
+/**
  * 세계관을 소프트 삭제하면서 하위 엔티티(Timeline/Event/Place/Character)에도
  * 같은 `deleted_at`을 찍는다.
  *
