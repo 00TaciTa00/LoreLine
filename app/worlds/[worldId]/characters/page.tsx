@@ -8,6 +8,7 @@ import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
 import {
   RichTextEditor,
+  RichTextView,
   isEmptyRichText,
   richTextToPlainText,
 } from "@/components/ui/RichTextEditor";
@@ -37,6 +38,8 @@ export default function CharactersPage() {
     null,
   );
   const [modalEvent, setModalEvent] = useState<EventItem | null>(null);
+  // 설명 펼침과 등장 사건 펼침은 서로 독립적으로 동작한다.
+  const [descriptionId, setDescriptionId] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   function openEvent(eventId: number) {
@@ -79,16 +82,24 @@ export default function CharactersPage() {
                   className="h-3 w-3 shrink-0 rounded-full"
                   style={{ backgroundColor: c.color }}
                 />
-                <div className="min-w-0 flex-1">
+                {/* 항목을 누르면 설명을 펼치고 접는다 */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDescriptionId(descriptionId === c.id ? null : c.id)
+                  }
+                  aria-expanded={descriptionId === c.id}
+                  className="min-w-0 flex-1 text-left"
+                >
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">
                     {c.name}
                   </p>
-                  {c.description && (
+                  {c.description && descriptionId !== c.id && (
                     <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
                       {richTextToPlainText(c.description)}
                     </p>
                   )}
-                </div>
+                </button>
                 <button
                   type="button"
                   onClick={() =>
@@ -106,6 +117,16 @@ export default function CharactersPage() {
                   수정
                 </button>
               </div>
+
+              {descriptionId === c.id && (
+                <div className="mt-2 border-t border-zinc-100 pt-2 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                  {c.description && !isEmptyRichText(c.description) ? (
+                    <RichTextView html={c.description} />
+                  ) : (
+                    <p className="text-zinc-400">설명이 없습니다.</p>
+                  )}
+                </div>
+              )}
 
               {expandedId === c.id && (
                 <RelatedEvents

@@ -76,6 +76,27 @@ export function RichTextEditor({
   );
 }
 
+/**
+ * 저장된 서식 내용을 읽기 전용으로 보여준다.
+ *
+ * `dangerouslySetInnerHTML` 대신 편집기와 같은 경로로 렌더링하는 이유:
+ * description은 공개 API로도 쓸 수 있어 `<script>`나 `onerror` 같은 것이
+ * 저장될 수 있다. Tiptap은 HTML을 ProseMirror 스키마로 파싱하면서 스키마에
+ * 없는 태그·속성을 버리므로, 여기를 통과한 내용은 안전하다.
+ */
+export function RichTextView({ html }: { html: string }) {
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: html,
+    editable: false,
+    immediatelyRender: false,
+  });
+
+  if (!editor) return null;
+
+  return <EditorContent editor={editor} />;
+}
+
 function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
 

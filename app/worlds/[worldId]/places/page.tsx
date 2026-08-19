@@ -8,6 +8,7 @@ import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
 import {
   RichTextEditor,
+  RichTextView,
   isEmptyRichText,
   richTextToPlainText,
 } from "@/components/ui/RichTextEditor";
@@ -35,6 +36,8 @@ export default function PlacesPage() {
 
   const [modalPlace, setModalPlace] = useState<Place | "new" | null>(null);
   const [modalEvent, setModalEvent] = useState<EventItem | null>(null);
+  // 설명 펼침과 관련 사건 펼침은 서로 독립적으로 동작한다.
+  const [descriptionId, setDescriptionId] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   function openEvent(eventId: number) {
@@ -77,16 +80,24 @@ export default function PlacesPage() {
                   className="h-3 w-3 shrink-0 rounded-full"
                   style={{ backgroundColor: p.color }}
                 />
-                <div className="min-w-0 flex-1">
+                {/* 항목을 누르면 설명을 펼치고 접는다 */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDescriptionId(descriptionId === p.id ? null : p.id)
+                  }
+                  aria-expanded={descriptionId === p.id}
+                  className="min-w-0 flex-1 text-left"
+                >
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">
                     {p.name}
                   </p>
-                  {p.description && (
+                  {p.description && descriptionId !== p.id && (
                     <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
                       {richTextToPlainText(p.description)}
                     </p>
                   )}
-                </div>
+                </button>
                 <button
                   type="button"
                   onClick={() =>
@@ -104,6 +115,16 @@ export default function PlacesPage() {
                   수정
                 </button>
               </div>
+
+              {descriptionId === p.id && (
+                <div className="mt-2 border-t border-zinc-100 pt-2 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                  {p.description && !isEmptyRichText(p.description) ? (
+                    <RichTextView html={p.description} />
+                  ) : (
+                    <p className="text-zinc-400">설명이 없습니다.</p>
+                  )}
+                </div>
+              )}
 
               {expandedId === p.id && (
                 <RelatedEvents
