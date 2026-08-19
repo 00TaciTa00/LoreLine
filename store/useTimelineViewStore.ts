@@ -18,7 +18,9 @@ type TimelineViewState = {
 
 export const useTimelineViewStore = create<TimelineViewState>((set) => ({
   viewMode: "all",
-  orientation: "horizontal",
+  // 기본은 세로(시간이 위에서 아래로 흐르는 연표). 공간별/인물별을 고르면
+  // 가로축이 공간/인물 열이 되는 격자가 된다.
+  orientation: "vertical",
   setViewMode: (mode) => set({ viewMode: mode }),
   setOrientation: (orientation) => set({ orientation }),
 }));
