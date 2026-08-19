@@ -3,17 +3,14 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { EventCardList } from "@/components/timeline/EventCardList";
 import { EventFormModal } from "@/components/timeline/EventFormModal";
-import { EventTimeline } from "@/components/timeline/EventTimeline";
 import { LaneFilter } from "@/components/timeline/LaneFilter";
-import { OrientationToggle } from "@/components/timeline/OrientationToggle";
 import { TimelineGrid } from "@/components/timeline/TimelineGrid";
-import { VerticalEventList } from "@/components/timeline/VerticalEventList";
 import { ViewToggle } from "@/components/timeline/ViewToggle";
 import { laneEventCounts } from "@/lib/timeline/grid";
 import { computeLanes } from "@/lib/timeline/lanes";
 import type { EventItem } from "@/lib/api/types";
-import { useIsNarrowScreen } from "@/lib/hooks/useIsNarrowScreen";
 import { useCharacters } from "@/lib/query/characters";
 import { useEvents } from "@/lib/query/events";
 import { usePlaces } from "@/lib/query/places";
@@ -27,11 +24,7 @@ export function WorldTimelineView() {
   const { data: events, isLoading: eventsLoading } = useEvents(worldId);
   const { data: places } = usePlaces(worldId);
   const { data: characters } = useCharacters(worldId);
-  const { viewMode, setViewMode, orientation, setOrientation } =
-    useTimelineViewStore();
-  const isNarrow = useIsNarrowScreen();
-  // 좁은 화면에서는 가로 연표의 가독성이 떨어져 세로를 강제한다.
-  const showVertical = isNarrow || orientation === "vertical";
+  const { viewMode, setViewMode } = useTimelineViewStore();
 
   const [modalEvent, setModalEvent] = useState<EventItem | "new" | null>(null);
 
@@ -41,11 +34,9 @@ export function WorldTimelineView() {
     new Set(),
   );
 
-  // 세로 + 공간별/인물별이면 격자(세로축=시간, 가로축=열)로 그린다.
-  const gridAxis =
-    showVertical && viewMode !== "all"
-      ? (viewMode as "place" | "character")
-      : null;
+  // 공간별/인물별은 항상 격자(세로축=시간, 가로축=공간·인물)로 그린다.
+  // 전체는 축 없이 카드 목록으로 늘어놓는다.
+  const gridAxis = viewMode === "all" ? null : viewMode;
 
   const lanes = gridAxis ? computeLanes(gridAxis, places ?? [], characters ?? []) : [];
   const hiddenLaneIds =
@@ -82,11 +73,6 @@ export function WorldTimelineView() {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 px-4 py-2 dark:border-zinc-800 sm:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <ViewToggle value={viewMode} onChange={setViewMode} />
-          <OrientationToggle
-            value={orientation}
-            onChange={setOrientation}
-            forcedVertical={isNarrow}
-          />
           {gridAxis && (
             <LaneFilter
               lanes={lanes}
@@ -128,22 +114,9 @@ export function WorldTimelineView() {
               setModalEvent(events?.find((e) => e.id === id) ?? null)
             }
           />
-        ) : showVertical ? (
-          <VerticalEventList
-            events={events ?? []}
-            places={places ?? []}
-            characters={characters ?? []}
-            viewMode={viewMode}
-            onSelectEvent={(id) =>
-              setModalEvent(events?.find((e) => e.id === id) ?? null)
-            }
-          />
         ) : (
-          <EventTimeline
+          <EventCardList
             events={events ?? []}
-            places={places ?? []}
-            characters={characters ?? []}
-            viewMode={viewMode}
             onSelectEvent={(id) =>
               setModalEvent(events?.find((e) => e.id === id) ?? null)
             }
