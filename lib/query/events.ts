@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { fetchJson } from "@/lib/api/client";
 import type { EventInput, EventItem, EventPlacement } from "@/lib/api/types";
-import { reorderEvents } from "@/lib/timeline/reorder";
+import { reorderById } from "@/lib/timeline/reorder";
 
 export function useEvents(worldId: number) {
   return useQuery({
@@ -48,7 +48,7 @@ export function useReorderEvent(worldId: number) {
       if (previous) {
         queryClient.setQueryData(queryKey, {
           ...previous,
-          events: reorderEvents(previous.events, eventId, placement),
+          events: reorderById(previous.events, eventId, placement),
         });
       }
 

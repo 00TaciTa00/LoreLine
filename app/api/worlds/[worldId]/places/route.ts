@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, asc, count, eq, isNull } from "drizzle-orm";
 
 import { place, withDb } from "@/lib/db";
 import { isWorldAlive } from "@/lib/db/worlds";
+import { placeOrder } from "@/lib/db/orderable-tables";
+import { resolveSortKey } from "@/lib/db/ordering";
 import { pickColor } from "@/lib/colors";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
@@ -16,7 +18,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     db
       .select()
       .from(place)
-      .where(and(eq(place.worldId, Number(worldId)), isNull(place.deletedAt))),
+      .where(and(eq(place.worldId, Number(worldId)), isNull(place.deletedAt)))
+      .orderBy(asc(place.sortKey)),
   );
 
   return NextResponse.json({ places });
@@ -48,6 +51,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .from(place)
       .where(and(eq(place.worldId, worldIdNum), isNull(place.deletedAt)));
 
+    // 새 공간은 목록 맨 뒤에 붙인다.
+    const sortKey = await resolveSortKey(db, worldIdNum, placeOrder, {
+      kind: "end",
+    });
+
     const [row] = await db
       .insert(place)
       .values({
@@ -55,6 +63,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         name: body.name,
         description: body.description ?? null,
         color: parsedColor.color ?? pickColor(existingCount),
+        sortKey,
       })
       .returning();
 

@@ -15,6 +15,13 @@
       "when": 1787136850873,
       "tag": "0001_curved_martin_li",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787181691199,
+      "tag": "0002_whole_supreme_intelligence",
+      "breakpoints": true
     }
   ]
 }

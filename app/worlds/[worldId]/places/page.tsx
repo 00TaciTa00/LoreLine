@@ -21,14 +21,18 @@ import {
   useDeletePlace,
   usePlace,
   usePlaces,
+  useReorderPlace,
   useUpdatePlace,
 } from "@/lib/query/places";
+import { useDragReorder } from "@/lib/hooks/useDragReorder";
+import { placementForDrop } from "@/lib/timeline/reorder";
 
 export default function PlacesPage() {
   const params = useParams<{ worldId: string }>();
   const worldId = Number(params.worldId);
 
   const { data: places, isLoading } = usePlaces(worldId);
+  const reorderPlace = useReorderPlace(worldId);
   const { data: characters } = useCharacters(worldId);
   // 사건 상세를 이 페이지에서 바로 열기 위해 전체 사건 목록이 필요하다.
   // 공간 상세 API가 주는 관련 사건에는 공간·인물 관계가 빠져 있어 모달에 쓸 수 없다.
@@ -44,6 +48,15 @@ export default function PlacesPage() {
     const found = events?.find((e) => e.id === eventId);
     if (found) setModalEvent(found);
   }
+
+  const drag = useDragReorder(
+    (places ?? []).map((p) => p.id),
+    (placeId, toIndex) => {
+      const placement = placementForDrop(places ?? [], placeId, toIndex);
+      if (placement === null) return;
+      reorderPlace.mutate({ placeId, placement });
+    },
+  );
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
@@ -68,17 +81,24 @@ export default function PlacesPage() {
           </p>
         )}
 
-        <ul className="flex flex-col gap-2">
-          {places?.map((p) => (
+        <ul className="flex flex-col gap-2" {...drag.containerProps}>
+          {places?.map((p, index) => (
             <li
               key={p.id}
               id={`place-${p.id}`}
-              className="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800"
+              {...drag.itemProps(p.id, index)}
+              className={drag.draggingId === p.id ? "opacity-40" : ""}
             >
+              {drag.showLineAt(index) && (
+                <div className="mb-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
+              )}
+
+              <div className="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
               <div className="flex items-center gap-3">
                 <span
-                  className="h-3 w-3 shrink-0 rounded-full"
+                  className="h-3 w-3 shrink-0 cursor-grab rounded-full active:cursor-grabbing"
                   style={{ backgroundColor: p.color }}
+                  title="끌어서 순서 변경"
                 />
                 {/* 항목을 누르면 설명을 펼치고 접는다 */}
                 <button
@@ -133,6 +153,12 @@ export default function PlacesPage() {
                   onSelectEvent={openEvent}
                 />
               )}
+              </div>
+
+              {index === (places?.length ?? 0) - 1 &&
+                drag.showLineAt(places?.length ?? 0) && (
+                  <div className="mt-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
+                )}
             </li>
           ))}
         </ul>

@@ -4,6 +4,9 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { event, eventPlace, place, withDb } from "@/lib/db";
 import { serializeEvent } from "@/lib/db/serialize";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
+import { placeOrder } from "@/lib/db/orderable-tables";
+import { resolveSortKey } from "@/lib/db/ordering";
+import { parsePlacement } from "@/lib/db/sort-key";
 
 type RouteParams = { params: Promise<{ worldId: string; placeId: string }> };
 
@@ -43,7 +46,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 // PATCH /api/worlds/:worldId/places/:placeId - 수정
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
-  const { placeId } = await params;
+  const { worldId, placeId } = await params;
   const body = await request.json();
 
   const parsedColor = parseColor(body.color);
@@ -51,8 +54,21 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
   }
 
-  const [updated] = await withDb((db) =>
-    db
+  // placement가 없으면 순서를 그대로 둔다.
+  const target = parsePlacement(body.placement);
+
+  const [updated] = await withDb(async (db) => {
+    const sortKey = target
+      ? await resolveSortKey(
+          db,
+          Number(worldId),
+          placeOrder,
+          target,
+          Number(placeId),
+        )
+      : undefined;
+
+    return db
       .update(place)
       .set({
         ...(body.name !== undefined ? { name: body.name } : {}),
@@ -62,11 +78,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         ...(parsedColor.color !== undefined
           ? { color: parsedColor.color }
           : {}),
+        ...(sortKey !== undefined ? { sortKey } : {}),
         updatedAt: new Date(),
       })
       .where(and(eq(place.id, Number(placeId)), isNull(place.deletedAt)))
-      .returning(),
-  );
+      .returning();
+  });
 
   if (!updated) {
     return NextResponse.json({ error: "not found" }, { status: 404 });

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { EventItem } from "@/lib/api/types";
 
-import { placementForDrop, reorderEvents } from "./reorder";
+import { placementForDrop, reorderById } from "./reorder";
 
 function ev(id: number, title: string): EventItem {
   return {
@@ -66,38 +66,38 @@ describe("placementForDrop", () => {
   });
 });
 
-describe("reorderEvents", () => {
+describe("reorderById", () => {
   it("first는 맨 앞으로 보낸다", () => {
-    expect(titles(reorderEvents(list, 3, "first"))).toEqual(["C", "A", "B", "D"]);
+    expect(titles(reorderById(list, 3, "first"))).toEqual(["C", "A", "B", "D"]);
   });
 
   it("end는 맨 뒤로 보낸다", () => {
-    expect(titles(reorderEvents(list, 1, "end"))).toEqual(["B", "C", "D", "A"]);
+    expect(titles(reorderById(list, 1, "end"))).toEqual(["B", "C", "D", "A"]);
   });
 
   it("id를 주면 그 사건 바로 뒤에 놓는다", () => {
-    expect(titles(reorderEvents(list, 4, 1))).toEqual(["A", "D", "B", "C"]);
+    expect(titles(reorderById(list, 4, 1))).toEqual(["A", "D", "B", "C"]);
   });
 
   it("뒤에서 앞으로 옮겨도 순서가 맞다", () => {
-    expect(titles(reorderEvents(list, 1, 3))).toEqual(["B", "C", "A", "D"]);
+    expect(titles(reorderById(list, 1, 3))).toEqual(["B", "C", "A", "D"]);
   });
 
   it("원본 배열을 바꾸지 않는다", () => {
     const before = titles(list);
-    reorderEvents(list, 1, "end");
+    reorderById(list, 1, "end");
     expect(titles(list)).toEqual(before);
   });
 
   it("없는 사건이나 없는 기준점이면 그대로 둔다", () => {
-    expect(titles(reorderEvents(list, 999, "first"))).toEqual(titles(list));
-    expect(titles(reorderEvents(list, 1, 999))).toEqual(titles(list));
+    expect(titles(reorderById(list, 999, "first"))).toEqual(titles(list));
+    expect(titles(reorderById(list, 1, 999))).toEqual(titles(list));
   });
 
   it("placementForDrop 결과를 그대로 넣으면 의도한 자리로 간다", () => {
     // C를 맨 앞으로 끌었을 때
     const placement = placementForDrop(list, 3, 0)!;
-    expect(titles(reorderEvents(list, 3, placement))).toEqual([
+    expect(titles(reorderById(list, 3, placement))).toEqual([
       "C",
       "A",
       "B",
@@ -106,6 +106,6 @@ describe("reorderEvents", () => {
 
     // A를 맨 뒤로 끌었을 때
     const toEnd = placementForDrop(list, 1, 3)!;
-    expect(titles(reorderEvents(list, 1, toEnd))).toEqual(["B", "C", "D", "A"]);
+    expect(titles(reorderById(list, 1, toEnd))).toEqual(["B", "C", "D", "A"]);
   });
 });

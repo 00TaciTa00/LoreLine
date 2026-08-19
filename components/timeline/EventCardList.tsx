@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
 import type { EventItem } from "@/lib/api/types";
 import { richTextToPlainText } from "@/components/ui/RichTextEditor";
+import { useDragReorder } from "@/lib/hooks/useDragReorder";
 
 type EventCardListProps = {
   /** 작중 시간순(sort_key)으로 정렬된 사건들 */
@@ -27,81 +26,31 @@ export function EventCardList({
   onSelectEvent,
   onReorder,
 }: EventCardListProps) {
-  const [draggingId, setDraggingId] = useState<number | null>(null);
-  /**
-   * 삽입선을 그릴 자리. 화면에 보이는 목록 기준의 "틈" 번호로,
-   * 0이면 첫 카드 앞이고 events.length면 마지막 카드 뒤다.
-   *
-   * 화면 기준으로 두는 이유: 삽입선을 그릴 때와 서버로 보낼 때 기준이 다르면
-   * 한 카드에 선이 두 개 그려지는 식으로 어긋난다. 여기서는 화면 기준 하나만
-   * 들고 있다가, 놓는 순간에 한 번만 변환한다.
-   */
-  const [dropGap, setDropGap] = useState<number | null>(null);
-
-  /** 카드의 위/아래 절반 중 어디에 있는지로 삽입할 틈을 정한다 */
-  function gapForPointer(e: React.DragEvent, cardIndex: number): number {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const isBottomHalf = e.clientY > rect.top + rect.height / 2;
-    return isBottomHalf ? cardIndex + 1 : cardIndex;
-  }
-
-  function handleDrop() {
-    if (draggingId !== null && dropGap !== null) {
-      // 끌던 항목을 빼고 나면 뒤쪽 자리는 하나씩 당겨진다.
-      const fromIndex = events.findIndex((ev) => ev.id === draggingId);
-      const toIndex =
-        fromIndex !== -1 && fromIndex < dropGap ? dropGap - 1 : dropGap;
-      onReorder(draggingId, toIndex);
-    }
-    setDraggingId(null);
-    setDropGap(null);
-  }
+  const drag = useDragReorder(
+    events.map((e) => e.id),
+    onReorder,
+  );
 
   return (
     <div className="h-full overflow-y-auto px-4 py-4 sm:px-6">
       <ul
         className="mx-auto flex max-w-3xl flex-col gap-2"
-        onDragLeave={(e) => {
-          // 목록 바깥으로 나갔을 때만 삽입선을 지운다(자식 간 이동은 무시).
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-            setDropGap(null);
-          }
-        }}
+        {...drag.containerProps}
       >
         {events.map((event, index) => {
           const preview = event.description
             ? richTextToPlainText(event.description)
             : "";
-          const isDragging = draggingId === event.id;
+          const isDragging = drag.draggingId === event.id;
 
           return (
             <li
               key={event.id}
-              draggable
-              onDragStart={(e) => {
-                setDraggingId(event.id);
-                e.dataTransfer.effectAllowed = "move";
-                // Firefox는 데이터가 설정돼야 드래그를 시작한다.
-                e.dataTransfer.setData("text/plain", String(event.id));
-              }}
-              onDragEnd={() => {
-                setDraggingId(null);
-                setDropGap(null);
-              }}
-              onDragOver={(e) => {
-                if (draggingId === null) return;
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "move";
-                setDropGap(gapForPointer(e, index));
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                handleDrop();
-              }}
+              {...drag.itemProps(event.id, index)}
               className={isDragging ? "opacity-40" : ""}
             >
               {/* 이 카드 바로 앞에 놓인다는 표시 */}
-              {draggingId !== null && dropGap === index && (
+              {drag.showLineAt(index) && (
                 <div className="mb-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
               )}
 
@@ -151,9 +100,8 @@ export function EventCardList({
               </button>
 
               {/* 마지막 카드 뒤에 놓는 경우 (틈 번호가 목록 길이와 같을 때) */}
-              {draggingId !== null &&
-                index === events.length - 1 &&
-                dropGap === events.length && (
+              {index === events.length - 1 &&
+                drag.showLineAt(events.length) && (
                   <div className="mt-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
                 )}
             </li>

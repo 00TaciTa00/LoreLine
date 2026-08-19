@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, asc, count, eq, isNull } from "drizzle-orm";
 
 import { character, withDb } from "@/lib/db";
 import { isWorldAlive } from "@/lib/db/worlds";
+import { characterOrder } from "@/lib/db/orderable-tables";
+import { resolveSortKey } from "@/lib/db/ordering";
 import { pickColor } from "@/lib/colors";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
@@ -18,7 +20,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .from(character)
       .where(
         and(eq(character.worldId, Number(worldId)), isNull(character.deletedAt)),
-      ),
+      )
+      .orderBy(asc(character.sortKey)),
   );
 
   return NextResponse.json({ characters });
@@ -52,6 +55,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         and(eq(character.worldId, worldIdNum), isNull(character.deletedAt)),
       );
 
+    // 새 인물은 목록 맨 뒤에 붙인다.
+    const sortKey = await resolveSortKey(db, worldIdNum, characterOrder, {
+      kind: "end",
+    });
+
     const [row] = await db
       .insert(character)
       .values({
@@ -59,6 +67,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         name: body.name,
         description: body.description ?? null,
         color: parsedColor.color ?? pickColor(existingCount),
+        sortKey,
       })
       .returning();
 
