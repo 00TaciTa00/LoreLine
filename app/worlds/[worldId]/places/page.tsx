@@ -6,6 +6,11 @@ import { useState } from "react";
 
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
+import {
+  RichTextEditor,
+  isEmptyRichText,
+  richTextToPlainText,
+} from "@/components/ui/RichTextEditor";
 import type { Place } from "@/lib/api/types";
 import { pickColor } from "@/lib/colors";
 import {
@@ -65,7 +70,7 @@ export default function PlacesPage() {
                   </p>
                   {p.description && (
                     <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
-                      {p.description}
+                      {richTextToPlainText(p.description)}
                     </p>
                   )}
                 </div>
@@ -174,13 +179,13 @@ function PlaceFormModal({
       if (place) {
         await updatePlace.mutateAsync({
           name: name.trim(),
-          description: description.trim(),
+          description: isEmptyRichText(description) ? "" : description,
           color,
         });
       } else {
         await createPlace.mutateAsync({
           name: name.trim(),
-          description: description.trim() || undefined,
+          description: isEmptyRichText(description) ? undefined : description,
           color,
         });
       }
@@ -213,13 +218,14 @@ function PlaceFormModal({
           className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
           required
         />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="설명 (선택)"
-          rows={3}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        />
+        <div>
+          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">설명</p>
+          <RichTextEditor
+            value={description}
+            onChange={setDescription}
+            placeholder="이 공간이 어떤 곳인지 적어보세요 (선택)"
+          />
+        </div>
         <div>
           <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
             색상

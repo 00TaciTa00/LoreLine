@@ -23,7 +23,9 @@ export function Modal({ title, onClose, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-5 shadow-xl dark:bg-zinc-900"
+        // PC에서는 넓게(2xl) 쓰고 모바일에서는 화면 폭에 맞춘다.
+        // 내용란이 서식 편집기라 좁으면 편집이 답답하다.
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-5 shadow-xl sm:max-w-2xl sm:p-6 dark:bg-zinc-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">

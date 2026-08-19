@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { Modal } from "@/components/ui/Modal";
+import { RichTextEditor, isEmptyRichText } from "@/components/ui/RichTextEditor";
 import type {
   Character,
   EventItem,
@@ -89,7 +90,7 @@ export function EventFormModal({
         await updateEvent.mutateAsync({
           title: title.trim(),
           displayTime: displayTime.trim(),
-          description: description.trim() || null,
+          description: isEmptyRichText(description) ? null : description,
           color,
           placeIds,
           characterIds,
@@ -99,7 +100,7 @@ export function EventFormModal({
         await createEvent.mutateAsync({
           title: title.trim(),
           displayTime: displayTime.trim(),
-          description: description.trim() || undefined,
+          description: isEmptyRichText(description) ? undefined : description,
           color,
           placeIds,
           characterIds,
@@ -136,13 +137,14 @@ export function EventFormModal({
           required
           className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
         />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="내용 (선택)"
-          rows={3}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        />
+        <div>
+          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">내용</p>
+          <RichTextEditor
+            value={description}
+            onChange={setDescription}
+            placeholder="이 사건에서 무슨 일이 있었는지 적어보세요 (선택)"
+          />
+        </div>
 
         <div>
           <label

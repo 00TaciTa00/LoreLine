@@ -24,3 +24,55 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ---------------------------------------------------------------------------
+   서식 편집기(Tiptap) 스타일
+   Tailwind Typography 플러그인을 넣는 대신, 편집기에서 실제로 쓰는 요소만
+   직접 정의한다. 의존성을 하나 줄이고 모달 안에서 여백을 통제하기 쉽다.
+   --------------------------------------------------------------------------- */
+.ProseMirror p {
+  margin: 0 0 0.5em;
+}
+.ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+.ProseMirror h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0.75em 0 0.35em;
+}
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.4em;
+  margin: 0 0 0.5em;
+}
+.ProseMirror ul {
+  list-style: disc;
+}
+.ProseMirror ol {
+  list-style: decimal;
+}
+.ProseMirror blockquote {
+  border-left: 3px solid currentColor;
+  opacity: 0.85;
+  padding-left: 0.75em;
+  margin: 0 0 0.5em;
+}
+.ProseMirror strong {
+  font-weight: 700;
+}
+.ProseMirror em {
+  font-style: italic;
+}
+.ProseMirror s {
+  text-decoration: line-through;
+}
+
+/* 비어 있을 때만 안내 문구를 보여준다 (Placeholder 확장이 붙이는 클래스) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: #a1a1aa;
+}
