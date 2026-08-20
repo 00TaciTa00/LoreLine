@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
 }
 
 @theme inline {
@@ -16,6 +18,8 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --scrollbar-thumb: #3f3f46;
+    --scrollbar-thumb-hover: #52525b;
   }
 }
 
@@ -23,6 +27,46 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   스크롤바
+   모달·격자·드롭다운 등 스크롤이 생기는 곳이 여러 군데라 전역으로 한 번만
+   정의한다. 표준 속성(Firefox·최신 Chrome)과 WebKit 의사요소를 함께 둔다.
+
+   숨겼다 나타나게 하지 않는 이유: 격자처럼 가로로 넓은 화면에서는 스크롤바가
+   보여야 더 볼 내용이 있다는 걸 알 수 있다. 얇고 은은하게만 만든다.
+   --------------------------------------------------------------------------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  /* 투명 테두리 + background-clip으로 트랙과 간격을 만든다.
+     막대 자체를 얇게 하는 것보다 잡기 편하면서 가늘어 보인다. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* 가로·세로 스크롤바가 만나는 모서리 */
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* ---------------------------------------------------------------------------
