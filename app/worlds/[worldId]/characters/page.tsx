@@ -24,6 +24,7 @@ import {
 } from "@/lib/query/characters";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
 import { placementForDrop } from "@/lib/timeline/reorder";
+import { formatDisplayTime } from "@/lib/timeline/display-time";
 import { useEvents } from "@/lib/query/events";
 import { usePlaces } from "@/lib/query/places";
 
@@ -220,7 +221,7 @@ function RelatedEvents({
             onClick={() => onSelectEvent(ev.id)}
             className="text-left text-sm text-zinc-600 hover:underline dark:text-zinc-400"
           >
-            {ev.displayTime} · {ev.title}
+            {formatDisplayTime(ev)} · {ev.title}
           </button>
         </li>
       ))}

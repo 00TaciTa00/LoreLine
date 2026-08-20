@@ -22,6 +22,13 @@
       "when": 1787181691199,
       "tag": "0002_whole_supreme_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787186654634,
+      "tag": "0003_spicy_shockwave",
+      "breakpoints": true
     }
   ]
 }

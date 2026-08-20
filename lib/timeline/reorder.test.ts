@@ -11,6 +11,7 @@ function ev(id: number, title: string): EventItem {
     timelineId: 1,
     title,
     description: null,
+    era: null,
     displayTime: `t${id}`,
     sortKey: String(id * 1000),
     color: null,

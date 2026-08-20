@@ -14,6 +14,7 @@ import type {
   Place,
 } from "@/lib/api/types";
 import { useCreateEvent, useDeleteEvent, useUpdateEvent } from "@/lib/query/events";
+import { formatDisplayTime } from "@/lib/timeline/display-time";
 
 type EventFormModalProps = {
   worldId: number;
@@ -41,6 +42,7 @@ export function EventFormModal({
   const deleteEvent = useDeleteEvent(worldId);
 
   const [title, setTitle] = useState(event?.title ?? "");
+  const [era, setEra] = useState(event?.era ?? "");
   const [displayTime, setDisplayTime] = useState(event?.displayTime ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
   const [color, setColor] = useState(event?.color ?? "#64748b");
@@ -86,6 +88,8 @@ export function EventFormModal({
       if (event) {
         await updateEvent.mutateAsync({
           title: title.trim(),
+          era: era.trim() || null,
+
           displayTime: displayTime.trim(),
           description: isEmptyRichText(description) ? null : description,
           color,
@@ -96,6 +100,8 @@ export function EventFormModal({
       } else {
         await createEvent.mutateAsync({
           title: title.trim(),
+          era: era.trim() || null,
+
           displayTime: displayTime.trim(),
           description: isEmptyRichText(description) ? undefined : description,
           color,
@@ -127,13 +133,32 @@ export function EventFormModal({
           required
           className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
         />
-        <input
-          value={displayTime}
-          onChange={(e) => setDisplayTime(e.target.value)}
-          placeholder="작중 시각 (예: 3년째 겨울, 즉위 12년)"
-          required
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        />
+        <div>
+          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+            작중 시각
+          </p>
+          <div className="flex items-center gap-2">
+            <input
+              value={era}
+              onChange={(e) => setEra(e.target.value)}
+              placeholder="상위 기간 (예: 제3 성력)"
+              aria-label="상위 기간"
+              className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            />
+            <span className="shrink-0 text-sm text-zinc-400">-</span>
+            <input
+              value={displayTime}
+              onChange={(e) => setDisplayTime(e.target.value)}
+              placeholder="하위 시각 (예: 789년)"
+              aria-label="하위 시각"
+              required
+              className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            />
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            상위 기간은 비워도 됩니다. 정렬 순서는 아래 &ldquo;작중 순서&rdquo;가 정합니다.
+          </p>
+        </div>
         <div>
           <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">내용</p>
           <RichTextEditor
@@ -161,7 +186,7 @@ export function EventFormModal({
             <option value="end">맨 뒤로</option>
             {otherEvents.map((e) => (
               <option key={e.id} value={String(e.id)}>
-                {e.displayTime} · {e.title} 다음으로
+                {formatDisplayTime(e)} · {e.title} 다음으로
               </option>
             ))}
           </select>

@@ -86,6 +86,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           timelineId,
           title: body.title,
           description: body.description ?? null,
+          era: typeof body.era === "string" && body.era.trim() ? body.era.trim() : null,
           displayTime: body.displayTime,
           color: parsedColor === null ? null : (parsedColor.color ?? null),
           sortKey,

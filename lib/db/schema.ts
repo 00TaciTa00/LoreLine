@@ -148,6 +148,10 @@ export const event = pgTable(
       .references(() => timeline.id),
     title: text("title").notNull(),
     description: text("description"),
+    // 작중 시각은 두 단계로 적는다. era가 상위 기간("제3 성력"),
+    // display_time이 그 안의 하위 시각("789년")이다.
+    // 상위는 없어도 되므로 nullable, 하위는 예전부터 필수였다.
+    era: text("era"),
     displayTime: text("display_time").notNull(),
     sortKey: bigint("sort_key", { mode: "bigint" }).notNull(),
     // "전체" 뷰에서 사건 자체를 구분하는 색상 (hex). 미지정 시 UI에서 기본값 사용.

@@ -22,9 +22,10 @@ function ev(
   displayTime: string,
   places: Place[],
   characters: Character[],
+  era: string | null = null,
 ): EventItem {
   return {
-    id, worldId: 1, timelineId: 1, title, description: null, displayTime,
+    id, worldId: 1, timelineId: 1, title, description: null, era, displayTime,
     sortKey: String(id * 1000), color: null,
     createdAt: "", updatedAt: "", deletedAt: null, places, characters,
   };
@@ -74,6 +75,61 @@ describe("buildGrid", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].cells.get("place-1")?.[0].title).toBe("왕궁의 밤");
     expect(rows[0].cells.get("place-2")?.[0].title).toBe("숲의 추격");
+  });
+
+  it("상위 기간이 다르면 하위 시각이 같아도 다른 행이다", () => {
+    // "제3 성력 - 1년"과 "제4 성력 - 1년"을 한 행에 묶으면 안 된다.
+    const rows = buildGrid(
+      [
+        ev(1, "A", "1년", [palace], [eirin], "제3 성력"),
+        ev(2, "B", "1년", [forest], [kasl], "제4 성력"),
+      ],
+      "place",
+      ALL_PLACES,
+    );
+
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => r.displayTime)).toEqual([
+      "제3 성력 - 1년",
+      "제4 성력 - 1년",
+    ]);
+  });
+
+  it("상위 기간까지 같으면 한 행으로 묶는다", () => {
+    const rows = buildGrid(
+      [
+        ev(1, "A", "1년", [palace], [eirin], "제3 성력"),
+        ev(2, "B", "1년", [forest], [kasl], "제3 성력"),
+      ],
+      "place",
+      ALL_PLACES,
+    );
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].displayTime).toBe("제3 성력 - 1년");
+  });
+
+  it("상위 기간이 없으면 하위 시각만 라벨로 쓴다", () => {
+    const rows = buildGrid(
+      [ev(1, "A", "1년 봄", [palace], [eirin])],
+      "place",
+      ALL_PLACES,
+    );
+
+    expect(rows[0].displayTime).toBe("1년 봄");
+  });
+
+  it("한쪽만 상위 기간이 있으면 다른 행이다", () => {
+    const rows = buildGrid(
+      [
+        ev(1, "A", "1년", [palace], [eirin], "제3 성력"),
+        ev(2, "B", "1년", [forest], [kasl]),
+      ],
+      "place",
+      ALL_PLACES,
+    );
+
+    expect(rows).toHaveLength(2);
   });
 
   it("작중 시각이 같아도 연속되지 않으면 행을 합치지 않는다", () => {

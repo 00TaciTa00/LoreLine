@@ -82,6 +82,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           ...(body.description !== undefined
             ? { description: body.description }
             : {}),
+          ...(body.era !== undefined
+            ? {
+                era:
+                  typeof body.era === "string" && body.era.trim()
+                    ? body.era.trim()
+                    : null,
+              }
+            : {}),
           ...(body.displayTime !== undefined
             ? { displayTime: body.displayTime }
             : {}),

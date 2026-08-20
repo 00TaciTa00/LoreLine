@@ -1,5 +1,6 @@
 import type { EventItem } from "@/lib/api/types";
 
+import { displayTimeKey, formatDisplayTime } from "./display-time";
 import type { Lane } from "./lanes";
 
 /**
@@ -13,8 +14,10 @@ import type { Lane } from "./lanes";
  * "3년째 겨울(밤)"은 다른 행이 된다.
  */
 export type GridRow = {
-  /** 이 행의 작중 시각 라벨 */
+  /** 이 행에 보여줄 작중 시각 (상위 기간이 있으면 합쳐진 형태) */
   displayTime: string;
+  /** 같은 행으로 묶을지 판단하는 값 (상위+하위) */
+  key: string;
   /** laneId -> 그 칸에 놓일 사건들 */
   cells: Map<string, EventItem[]>;
   /** 행에 포함된 전체 사건 (레인에 안 걸린 것도 포함) */
@@ -51,9 +54,16 @@ export function buildGrid(
     if (laneIds.length === 0) continue;
 
     // 직전 행과 작중 시각이 같으면 같은 행에 합친다.
+    // 상위 기간까지 같아야 한다("제3 성력 - 1년"과 "제4 성력 - 1년"은 다른 행).
+    const key = displayTimeKey(event);
     let row = rows.at(-1);
-    if (!row || row.displayTime !== event.displayTime) {
-      row = { displayTime: event.displayTime, cells: new Map(), events: [] };
+    if (!row || row.key !== key) {
+      row = {
+        displayTime: formatDisplayTime(event),
+        key,
+        cells: new Map(),
+        events: [],
+      };
       rows.push(row);
     }
 

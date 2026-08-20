@@ -26,6 +26,7 @@ import {
 } from "@/lib/query/places";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
 import { placementForDrop } from "@/lib/timeline/reorder";
+import { formatDisplayTime } from "@/lib/timeline/display-time";
 
 export default function PlacesPage() {
   const params = useParams<{ worldId: string }>();
@@ -218,7 +219,7 @@ function RelatedEvents({
             onClick={() => onSelectEvent(ev.id)}
             className="text-left text-sm text-zinc-600 hover:underline dark:text-zinc-400"
           >
-            {ev.displayTime} · {ev.title}
+            {formatDisplayTime(ev)} · {ev.title}
           </button>
         </li>
       ))}

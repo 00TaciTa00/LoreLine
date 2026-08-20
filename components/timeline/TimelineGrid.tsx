@@ -83,7 +83,7 @@ export function TimelineGrid({
         {/* 시간 행 */}
         {rows.map((row, rowIndex) => (
           <div
-            key={`${row.displayTime}-${rowIndex}`}
+            key={`${row.key}-${rowIndex}`}
             className="grid border-b border-zinc-100 dark:border-zinc-800"
             style={{ gridTemplateColumns }}
           >

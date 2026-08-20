@@ -45,6 +45,7 @@ export type EventSummary = {
   timelineId: number;
   title: string;
   description: string | null;
+  era: string | null;
   displayTime: string;
   sortKey: string;
   color: string | null;
@@ -60,6 +61,7 @@ export type EventItem = {
   timelineId: number;
   title: string;
   description: string | null;
+  era: string | null;
   displayTime: string;
   sortKey: string;
   color: string | null;
@@ -78,6 +80,8 @@ export type EventPlacement = "first" | "end" | number;
 
 export type EventInput = {
   title: string;
+  /** 상위 기간. 비우면 하위 시각만 표시된다. */
+  era?: string | null;
   displayTime: string;
   description?: string | null;
   color?: string | null;

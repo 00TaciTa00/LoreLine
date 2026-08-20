@@ -3,6 +3,7 @@
 import type { EventItem } from "@/lib/api/types";
 import { richTextToPlainText } from "@/components/ui/RichTextEditor";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
+import { formatDisplayTime } from "@/lib/timeline/display-time";
 
 type EventCardListProps = {
   /** 작중 시간순(sort_key)으로 정렬된 사건들 */
@@ -60,7 +61,7 @@ export function EventCardList({
                 className="w-full cursor-grab rounded-lg border border-zinc-200 border-l-4 px-4 py-3 text-left transition-colors hover:border-zinc-400 hover:bg-zinc-50 active:cursor-grabbing dark:border-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
                 style={{ borderLeftColor: event.color ?? DEFAULT_EVENT_COLOR }}
               >
-                <p className="text-xs text-zinc-500">{event.displayTime}</p>
+                <p className="text-xs text-zinc-500">{formatDisplayTime(event)}</p>
                 <p className="mt-0.5 font-medium text-zinc-900 dark:text-zinc-50">
                   {event.title}
                 </p>
