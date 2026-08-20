@@ -48,6 +48,7 @@ add_milestone() {
 add_milestone "사용성 개선" "쓰면서 불편했던 것들"
 add_milestone "테스트·품질" "회귀를 막는 장치"
 add_milestone "확장성"     "데이터가 늘었을 때 필요해지는 것"
+add_milestone "제품화"     "다른 사람이 쓸 수 있는 형태로 내보내기"
 
 echo "== 이슈 =="
 # 제목이 같은 열린 이슈가 있으면 건너뛴다.
