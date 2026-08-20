@@ -1,0 +1,28 @@
+name: 기능·개선
+description: 새로 만들거나 고치고 싶은 것
+labels: ["기능"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 무엇을 하고 싶나
+      placeholder: 사건 카드를 끌어서 순서를 바꾸고 싶다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 왜 필요한가
+      description: 지금은 어떻게 하고 있고 무엇이 불편한지
+      placeholder: |
+        지금은 사건을 열어 "작중 순서" 선택을 거쳐야 한다.
+        순서를 여러 번 바꿀 때 팝업을 계속 여닫아야 해서 번거롭다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 생각해둔 방식이나 걸리는 점
+      description: 없으면 비워도 된다
