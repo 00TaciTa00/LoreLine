@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { ColorPicker } from "@/components/ui/ColorPicker";
+import { ListSearchBar } from "@/components/ui/ListSearchBar";
 import { Modal } from "@/components/ui/Modal";
 import {
   RichTextEditor,
@@ -23,6 +24,7 @@ import {
   useUpdateCharacter,
 } from "@/lib/query/characters";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
+import { useListSearch } from "@/lib/hooks/useListSearch";
 import { placementForDrop } from "@/lib/timeline/reorder";
 import { formatDisplayTime } from "@/lib/timeline/display-time";
 import { useEvents } from "@/lib/query/events";
@@ -54,13 +56,17 @@ export default function CharactersPage() {
     if (found) setModalEvent(found);
   }
 
+  const search = useListSearch(characters ?? []);
+
   const drag = useDragReorder(
-    (characters ?? []).map((c) => c.id),
+    search.filtered.map((c) => c.id),
     (characterId, toIndex) => {
       const placement = placementForDrop(characters ?? [], characterId, toIndex);
       if (placement === null) return;
       reorderCharacter.mutate({ characterId, placement });
     },
+    // 걸러진 목록에서 끌면 숨은 항목 사이 어디에 놓였는지 알 수 없다.
+    { enabled: !search.isSearching },
   );
 
   return (
@@ -80,14 +86,31 @@ export default function CharactersPage() {
         </div>
 
         {isLoading && <p className="text-sm text-zinc-500">불러오는 중...</p>}
+
+        {characters && characters.length > 0 && (
+          <ListSearchBar
+            value={search.query}
+            onChange={search.setQuery}
+            placeholder="인물 이름 검색"
+            itemLabel="인물"
+            isSearching={search.isSearching}
+            resultCount={search.filtered.length}
+          />
+        )}
+
         {characters?.length === 0 && (
           <p className="text-sm text-zinc-500">
             아직 등록된 인물이 없습니다.
           </p>
         )}
+        {search.isSearching && search.filtered.length === 0 && (
+          <p className="text-sm text-zinc-500">
+            검색과 일치하는 인물이 없습니다.
+          </p>
+        )}
 
         <ul className="flex flex-col gap-2" {...drag.containerProps}>
-          {characters?.map((c, index) => (
+          {search.filtered.map((c, index) => (
             <li
               key={c.id}
               id={`character-${c.id}`}
@@ -161,8 +184,8 @@ export default function CharactersPage() {
               )}
               </div>
 
-              {index === (characters?.length ?? 0) - 1 &&
-                drag.showLineAt(characters?.length ?? 0) && (
+              {index === search.filtered.length - 1 &&
+                drag.showLineAt(search.filtered.length) && (
                   <div className="mt-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
                 )}
             </li>

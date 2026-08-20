@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { ColorPicker } from "@/components/ui/ColorPicker";
+import { ListSearchBar } from "@/components/ui/ListSearchBar";
 import { Modal } from "@/components/ui/Modal";
 import {
   RichTextEditor,
@@ -26,6 +27,7 @@ import {
   useUpdatePlace,
 } from "@/lib/query/places";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
+import { useListSearch } from "@/lib/hooks/useListSearch";
 import { placementForDrop } from "@/lib/timeline/reorder";
 import { formatDisplayTime } from "@/lib/timeline/display-time";
 
@@ -52,13 +54,17 @@ export default function PlacesPage() {
     if (found) setModalEvent(found);
   }
 
+  const search = useListSearch(places ?? []);
+
   const drag = useDragReorder(
-    (places ?? []).map((p) => p.id),
+    search.filtered.map((p) => p.id),
     (placeId, toIndex) => {
       const placement = placementForDrop(places ?? [], placeId, toIndex);
       if (placement === null) return;
       reorderPlace.mutate({ placeId, placement });
     },
+    // 걸러진 목록에서 끌면 숨은 항목 사이 어디에 놓였는지 알 수 없다.
+    { enabled: !search.isSearching },
   );
 
   return (
@@ -78,14 +84,31 @@ export default function PlacesPage() {
         </div>
 
         {isLoading && <p className="text-sm text-zinc-500">불러오는 중...</p>}
+
+        {places && places.length > 0 && (
+          <ListSearchBar
+            value={search.query}
+            onChange={search.setQuery}
+            placeholder="공간 이름 검색"
+            itemLabel="공간"
+            isSearching={search.isSearching}
+            resultCount={search.filtered.length}
+          />
+        )}
+
         {places?.length === 0 && (
           <p className="text-sm text-zinc-500">
             아직 등록된 공간이 없습니다.
           </p>
         )}
+        {search.isSearching && search.filtered.length === 0 && (
+          <p className="text-sm text-zinc-500">
+            검색과 일치하는 공간이 없습니다.
+          </p>
+        )}
 
         <ul className="flex flex-col gap-2" {...drag.containerProps}>
-          {places?.map((p, index) => (
+          {search.filtered.map((p, index) => (
             <li
               key={p.id}
               id={`place-${p.id}`}
@@ -159,8 +182,8 @@ export default function PlacesPage() {
               )}
               </div>
 
-              {index === (places?.length ?? 0) - 1 &&
-                drag.showLineAt(places?.length ?? 0) && (
+              {index === search.filtered.length - 1 &&
+                drag.showLineAt(search.filtered.length) && (
                   <div className="mt-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
                 )}
             </li>

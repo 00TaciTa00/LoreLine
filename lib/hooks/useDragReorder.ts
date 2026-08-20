@@ -15,21 +15,29 @@ import { useState } from "react";
  * HTML5 드래그는 터치·키보드로 동작하지 않는다. 호출하는 쪽에서 대체 수단을
  * 함께 제공해야 한다.
  */
+/**
+ * 끌 수 없을 때는 빈 객체가 나온다. 그대로 펼쳐 쓰면 draggable 속성과
+ * 핸들러가 붙지 않아 자연스럽게 드래그가 꺼진다.
+ */
+type ItemProps =
+  | {
+      draggable: true;
+      onDragStart: (e: React.DragEvent) => void;
+      onDragEnd: () => void;
+      onDragOver: (e: React.DragEvent) => void;
+      onDrop: (e: React.DragEvent) => void;
+    }
+  | Record<string, never>;
+
 export type DragReorder = {
   draggingId: number | null;
   /** 이 자리(틈)에 삽입선을 그릴지 */
   showLineAt: (gap: number) => boolean;
-  itemProps: (id: number, index: number) => {
-    draggable: true;
-    onDragStart: (e: React.DragEvent) => void;
-    onDragEnd: () => void;
-    onDragOver: (e: React.DragEvent) => void;
-    onDrop: (e: React.DragEvent) => void;
-  };
+  itemProps: (id: number, index: number) => ItemProps;
   /** 목록 바깥으로 나가면 삽입선을 지운다 */
-  containerProps: {
-    onDragLeave: (e: React.DragEvent) => void;
-  };
+  containerProps:
+    | { onDragLeave: (e: React.DragEvent) => void }
+    | Record<string, never>;
 };
 
 export function useDragReorder(
@@ -37,7 +45,16 @@ export function useDragReorder(
   ids: number[],
   /** 끌던 항목을 제외한 목록 기준의 삽입 위치로 호출된다 */
   onReorder: (id: number, toIndex: number) => void,
+  options?: {
+    /**
+     * false면 끌 수 없다. 목록이 걸러져 있을 때 쓴다. 보이는 것만 놓고
+     * 순서를 바꾸면 숨은 항목 사이 어디에 놓였는지 알 수 없어, 놓은 자리와
+     * 실제 결과가 어긋난다.
+     */
+    enabled?: boolean;
+  },
 ): DragReorder {
+  const enabled = options?.enabled ?? true;
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [dropGap, setDropGap] = useState<number | null>(null);
 
@@ -55,6 +72,15 @@ export function useDragReorder(
       onReorder(draggingId, toIndex);
     }
     reset();
+  }
+
+  if (!enabled) {
+    return {
+      draggingId: null,
+      showLineAt: () => false,
+      itemProps: () => ({}),
+      containerProps: {},
+    };
   }
 
   return {
