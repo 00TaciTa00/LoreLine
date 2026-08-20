@@ -1,14 +1,24 @@
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 
 import type { Db } from "./index";
-import { character, event, eventCharacter, eventPlace, place } from "./schema";
+import {
+  character,
+  era,
+  event,
+  eventCharacter,
+  eventPlace,
+  place,
+} from "./schema";
 import {
   serializeCharacter,
+  serializeEra,
   serializeEvent,
   serializePlace,
 } from "./serialize";
 
 export type EventWithRelations = ReturnType<typeof serializeEvent> & {
+  /** 상위 기간. 고르지 않았거나 그 기간이 삭제됐으면 null */
+  era: ReturnType<typeof serializeEra> | null;
   places: ReturnType<typeof serializePlace>[];
   characters: ReturnType<typeof serializeCharacter>[];
 };
@@ -24,7 +34,17 @@ async function attachRelations(
   if (events.length === 0) return [];
   const eventIds = events.map((e) => e.id);
 
-  const [placeLinks, characterLinks] = await Promise.all([
+  const eraIds = [
+    ...new Set(events.map((e) => e.eraId).filter((id): id is number => id !== null)),
+  ];
+
+  const [eras, placeLinks, characterLinks] = await Promise.all([
+    eraIds.length === 0
+      ? Promise.resolve([])
+      : db
+          .select()
+          .from(era)
+          .where(and(inArray(era.id, eraIds), isNull(era.deletedAt))),
     db
       .select({ eventId: eventPlace.eventId, place })
       .from(eventPlace)
@@ -62,8 +82,11 @@ async function attachRelations(
     charactersByEvent.set(link.eventId, list);
   }
 
+  const eraById = new Map(eras.map((row) => [row.id, serializeEra(row)]));
+
   return events.map((e) => ({
     ...serializeEvent(e),
+    era: e.eraId === null ? null : (eraById.get(e.eraId) ?? null),
     places: placesByEvent.get(e.id) ?? [],
     characters: charactersByEvent.get(e.id) ?? [],
   }));

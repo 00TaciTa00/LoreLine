@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 
 import type { Db } from "./index";
 import type { OrderableTable } from "./ordering";
-import { character, place } from "./schema";
+import { character, era, place } from "./schema";
 
 /**
  * 공간·인물을 순서 있는 목록으로 다루기 위한 어댑터.
@@ -20,6 +20,19 @@ export const placeOrder: OrderableTable = {
 
   updateSortKey: async (db: Db, id: number, sortKey: bigint) => {
     await db.update(place).set({ sortKey }).where(eq(place.id, id));
+  },
+};
+
+export const eraOrder: OrderableTable = {
+  list: (db: Db, worldId: number) =>
+    db
+      .select({ id: era.id, sortKey: era.sortKey })
+      .from(era)
+      .where(eq(era.worldId, worldId))
+      .orderBy(asc(era.sortKey)),
+
+  updateSortKey: async (db: Db, id: number, sortKey: bigint) => {
+    await db.update(era).set({ sortKey }).where(eq(era.id, id));
   },
 };
 

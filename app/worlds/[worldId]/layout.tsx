@@ -24,6 +24,7 @@ export default function WorldLayout({
 
   const tabs = [
     { href: `/worlds/${worldId}`, label: "타임라인" },
+    { href: `/worlds/${worldId}/eras`, label: "시간" },
     { href: `/worlds/${worldId}/places`, label: "공간" },
     { href: `/worlds/${worldId}/characters`, label: "인물" },
   ];

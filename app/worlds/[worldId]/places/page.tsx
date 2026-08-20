@@ -15,6 +15,7 @@ import {
 import type { EventItem, Place } from "@/lib/api/types";
 import { pickColor } from "@/lib/colors";
 import { useCharacters } from "@/lib/query/characters";
+import { useEras } from "@/lib/query/eras";
 import { useEvents } from "@/lib/query/events";
 import {
   useCreatePlace,
@@ -35,6 +36,7 @@ export default function PlacesPage() {
   const { data: places, isLoading } = usePlaces(worldId);
   const reorderPlace = useReorderPlace(worldId);
   const { data: characters } = useCharacters(worldId);
+  const { data: eras } = useEras(worldId);
   // 사건 상세를 이 페이지에서 바로 열기 위해 전체 사건 목록이 필요하다.
   // 공간 상세 API가 주는 관련 사건에는 공간·인물 관계가 빠져 있어 모달에 쓸 수 없다.
   const { data: events } = useEvents(worldId);
@@ -152,6 +154,7 @@ export default function PlacesPage() {
                   worldId={worldId}
                   placeId={p.id}
                   onSelectEvent={openEvent}
+                  allEvents={events ?? []}
                 />
               )}
               </div>
@@ -180,6 +183,7 @@ export default function PlacesPage() {
           event={modalEvent}
           places={places ?? []}
           characters={characters ?? []}
+          eras={eras ?? []}
           events={events ?? []}
           onClose={() => setModalEvent(null)}
         />
@@ -192,10 +196,13 @@ function RelatedEvents({
   worldId,
   placeId,
   onSelectEvent,
+  allEvents,
 }: {
   worldId: number;
   placeId: number;
   onSelectEvent: (eventId: number) => void;
+  /** 상위 기간 이름을 얻기 위한 전체 사건 목록 */
+  allEvents: EventItem[];
 }) {
   const { data, isLoading } = usePlace(worldId, placeId);
 
@@ -219,7 +226,7 @@ function RelatedEvents({
             onClick={() => onSelectEvent(ev.id)}
             className="text-left text-sm text-zinc-600 hover:underline dark:text-zinc-400"
           >
-            {formatDisplayTime(ev)} · {ev.title}
+            {formatDisplayTime(allEvents.find((e) => e.id === ev.id) ?? { era: null, displayTime: ev.displayTime })} · {ev.title}
           </button>
         </li>
       ))}

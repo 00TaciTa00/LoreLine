@@ -5,6 +5,7 @@ import { getEventWithRelations, listEventsWithRelations } from "@/lib/db/events"
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { getOrCreateDefaultTimeline } from "@/lib/db/timelines";
 import { isWorldAlive } from "@/lib/db/worlds";
+import { parseEraId } from "@/lib/api/parse-era-id";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           timelineId,
           title: body.title,
           description: body.description ?? null,
-          era: typeof body.era === "string" && body.era.trim() ? body.era.trim() : null,
+          eraId: parseEraId(body.eraId),
           displayTime: body.displayTime,
           color: parsedColor === null ? null : (parsedColor.color ?? null),
           sortKey,

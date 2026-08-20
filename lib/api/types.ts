@@ -7,6 +7,19 @@ export type World = {
   deletedAt: string | null;
 };
 
+export type Era = {
+  id: number;
+  worldId: number;
+  name: string;
+  description: string | null;
+  color: string;
+  /** 목록 순서. BIGINT라 문자열로 온다. */
+  sortKey: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
 export type Place = {
   id: number;
   worldId: number;
@@ -45,7 +58,8 @@ export type EventSummary = {
   timelineId: number;
   title: string;
   description: string | null;
-  era: string | null;
+  /** 상위 기간은 조인하지 않고 id만 온다. 이름이 필요하면 EventItem을 쓸 것. */
+  eraId: number | null;
   displayTime: string;
   sortKey: string;
   color: string | null;
@@ -61,7 +75,7 @@ export type EventItem = {
   timelineId: number;
   title: string;
   description: string | null;
-  era: string | null;
+  era: Era | null;
   displayTime: string;
   sortKey: string;
   color: string | null;
@@ -80,8 +94,8 @@ export type EventPlacement = "first" | "end" | number;
 
 export type EventInput = {
   title: string;
-  /** 상위 기간. 비우면 하위 시각만 표시된다. */
-  era?: string | null;
+  /** 상위 기간 id. 고르지 않으면 null. */
+  eraId?: number | null;
   displayTime: string;
   description?: string | null;
   color?: string | null;

@@ -1,8 +1,9 @@
-import type { character, event, place } from "./schema";
+import type { character, era, event, place } from "./schema";
 
 type EventRow = typeof event.$inferSelect;
 type PlaceRow = typeof place.$inferSelect;
 type CharacterRow = typeof character.$inferSelect;
+type EraRow = typeof era.$inferSelect;
 
 /**
  * sort_key는 BIGINT(JS bigint)로 조회되는데 JSON.stringify는 bigint를
@@ -22,5 +23,9 @@ export function serializePlace<T extends PlaceRow>(row: T) {
 }
 
 export function serializeCharacter<T extends CharacterRow>(row: T) {
+  return { ...row, sortKey: row.sortKey.toString() };
+}
+
+export function serializeEra<T extends EraRow>(row: T) {
   return { ...row, sortKey: row.sortKey.toString() };
 }

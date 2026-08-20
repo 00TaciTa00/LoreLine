@@ -12,6 +12,7 @@ import { laneEventCounts } from "@/lib/timeline/grid";
 import { computeLanes } from "@/lib/timeline/lanes";
 import type { EventItem } from "@/lib/api/types";
 import { useCharacters } from "@/lib/query/characters";
+import { useEras } from "@/lib/query/eras";
 import { useEvents, useReorderEvent } from "@/lib/query/events";
 import { placementForDrop } from "@/lib/timeline/reorder";
 import { usePlaces } from "@/lib/query/places";
@@ -24,6 +25,7 @@ export function WorldTimelineView() {
   const { data: events, isLoading: eventsLoading } = useEvents(worldId);
   const { data: places } = usePlaces(worldId);
   const { data: characters } = useCharacters(worldId);
+  const { data: eras } = useEras(worldId);
   const { viewMode, setViewMode } = useTimelineViewStore();
   const reorderEvent = useReorderEvent(worldId);
 
@@ -124,6 +126,7 @@ export function WorldTimelineView() {
           event={modalEvent === "new" ? null : modalEvent}
           places={places ?? []}
           characters={characters ?? []}
+          eras={eras ?? []}
           events={events ?? []}
           onClose={() => setModalEvent(null)}
         />

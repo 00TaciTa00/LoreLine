@@ -5,6 +5,7 @@ import { event, eventCharacter, eventPlace, withDb } from "@/lib/db";
 import { getEventWithRelations } from "@/lib/db/events";
 import { serializeEvent } from "@/lib/db/serialize";
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
+import { parseEraId } from "@/lib/api/parse-era-id";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string; eventId: string }> };
@@ -82,13 +83,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           ...(body.description !== undefined
             ? { description: body.description }
             : {}),
-          ...(body.era !== undefined
-            ? {
-                era:
-                  typeof body.era === "string" && body.era.trim()
-                    ? body.era.trim()
-                    : null,
-              }
+          ...(body.eraId !== undefined
+            ? { eraId: parseEraId(body.eraId) }
             : {}),
           ...(body.displayTime !== undefined
             ? { displayTime: body.displayTime }

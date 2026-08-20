@@ -9,6 +9,7 @@ import { MultiSelect } from "@/components/ui/MultiSelect";
 import { RichTextEditor, isEmptyRichText } from "@/components/ui/RichTextEditor";
 import type {
   Character,
+  Era,
   EventItem,
   EventPlacement,
   Place,
@@ -21,6 +22,8 @@ type EventFormModalProps = {
   event: EventItem | null;
   places: Place[];
   characters: Character[];
+  /** 상위 기간 선택지 */
+  eras: Era[];
   /** 작중 시간순으로 정렬된 같은 세계관의 사건들 (순서 지정 선택지로 사용) */
   events: EventItem[];
   onClose: () => void;
@@ -34,6 +37,7 @@ export function EventFormModal({
   event,
   places,
   characters,
+  eras,
   events,
   onClose,
 }: EventFormModalProps) {
@@ -42,7 +46,9 @@ export function EventFormModal({
   const deleteEvent = useDeleteEvent(worldId);
 
   const [title, setTitle] = useState(event?.title ?? "");
-  const [era, setEra] = useState(event?.era ?? "");
+  const [eraId, setEraId] = useState(
+    event?.era ? String(event.era.id) : "",
+  );
   const [displayTime, setDisplayTime] = useState(event?.displayTime ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
   const [color, setColor] = useState(event?.color ?? "#64748b");
@@ -88,8 +94,7 @@ export function EventFormModal({
       if (event) {
         await updateEvent.mutateAsync({
           title: title.trim(),
-          era: era.trim() || null,
-
+          eraId: eraId ? Number(eraId) : null,
           displayTime: displayTime.trim(),
           description: isEmptyRichText(description) ? null : description,
           color,
@@ -100,8 +105,7 @@ export function EventFormModal({
       } else {
         await createEvent.mutateAsync({
           title: title.trim(),
-          era: era.trim() || null,
-
+          eraId: eraId ? Number(eraId) : null,
           displayTime: displayTime.trim(),
           description: isEmptyRichText(description) ? undefined : description,
           color,
@@ -138,13 +142,19 @@ export function EventFormModal({
             작중 시각
           </p>
           <div className="flex items-center gap-2">
-            <input
-              value={era}
-              onChange={(e) => setEra(e.target.value)}
-              placeholder="상위 기간 (예: 제3 성력)"
+            <select
+              value={eraId}
+              onChange={(e) => setEraId(e.target.value)}
               aria-label="상위 기간"
               className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-            />
+            >
+              <option value="">상위 기간 없음</option>
+              {eras.map((it) => (
+                <option key={it.id} value={String(it.id)}>
+                  {it.name}
+                </option>
+              ))}
+            </select>
             <span className="shrink-0 text-sm text-zinc-400">-</span>
             <input
               value={displayTime}

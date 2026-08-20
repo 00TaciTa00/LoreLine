@@ -22,10 +22,12 @@ function ev(
   displayTime: string,
   places: Place[],
   characters: Character[],
-  era: string | null = null,
+  eraName: string | null = null,
 ): EventItem {
   return {
-    id, worldId: 1, timelineId: 1, title, description: null, era, displayTime,
+    id, worldId: 1, timelineId: 1, title, description: null,
+    era: eraName === null ? null : { id: 1, worldId: 1, name: eraName, description: null, color: "#000", sortKey: "1000", createdAt: "", updatedAt: "", deletedAt: null },
+    displayTime,
     sortKey: String(id * 1000), color: null,
     createdAt: "", updatedAt: "", deletedAt: null, places, characters,
   };

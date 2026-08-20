@@ -128,6 +128,37 @@ export const character = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// Era: 작중 시각의 상위 기간("제3 성력"). 공간·인물처럼 세계관 안에서 한 번
+// 등록해두고 사건이 골라 쓴다. 자유 입력이던 시절에는 "제3성력"/"제 3 성력"이
+// 갈라지고 이름을 바꾸려면 사건을 하나씩 고쳐야 했다.
+// ---------------------------------------------------------------------------
+export const era = pgTable(
+  "era",
+  {
+    id: serial("id").primaryKey(),
+    worldId: bigint("world_id", { mode: "number" })
+      .notNull()
+      .references(() => world.id),
+    name: text("name").notNull(),
+    description: text("description"),
+    color: text("color").notNull().default("#64748b"),
+    // 목록 순서. Event.sort_key와 같은 채번 전략을 쓴다.
+    sortKey: bigint("sort_key", { mode: "bigint" }).notNull().default(sql`0`),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("era_world_id_idx").on(t.worldId),
+    index("era_world_id_sort_key_idx").on(t.worldId, t.sortKey),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // Event: 작중 사건. 가상 시간축 정렬은 sort_key로만 수행하고,
 // display_time은 "3년째 겨울", "즉위 12년" 같은 자유 형식 라벨을 저장한다.
 //
@@ -148,10 +179,10 @@ export const event = pgTable(
       .references(() => timeline.id),
     title: text("title").notNull(),
     description: text("description"),
-    // 작중 시각은 두 단계로 적는다. era가 상위 기간("제3 성력"),
+    // 작중 시각은 두 단계다. 상위 기간은 era 테이블을 가리키고(선택),
     // display_time이 그 안의 하위 시각("789년")이다.
-    // 상위는 없어도 되므로 nullable, 하위는 예전부터 필수였다.
-    era: text("era"),
+    // 상위 기간을 지워도 사건은 남아야 하므로 FK는 CASCADE를 걸지 않는다.
+    eraId: bigint("era_id", { mode: "number" }).references(() => era.id),
     displayTime: text("display_time").notNull(),
     sortKey: bigint("sort_key", { mode: "bigint" }).notNull(),
     // "전체" 뷰에서 사건 자체를 구분하는 색상 (hex). 미지정 시 UI에서 기본값 사용.
