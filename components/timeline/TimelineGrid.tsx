@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import type { EventItem } from "@/lib/api/types";
 import { buildGrid } from "@/lib/timeline/grid";
 import type { Lane } from "@/lib/timeline/lanes";
@@ -10,6 +12,8 @@ type TimelineGridProps = {
   axis: "place" | "character";
   hiddenLaneIds: Set<string>;
   onSelectEvent: (eventId: number) => void;
+  /** 행 사이 틈(0=첫 행 앞)으로 사건을 옮겼을 때 */
+  onReorder: (eventId: number, gapIndex: number) => void;
 };
 
 /** 시간 라벨이 들어가는 왼쪽 고정 열 너비 */
@@ -29,7 +33,12 @@ export function TimelineGrid({
   axis,
   hiddenLaneIds,
   onSelectEvent,
+  onReorder,
 }: TimelineGridProps) {
+  const [draggingId, setDraggingId] = useState<number | null>(null);
+  /** 삽입선을 그릴 행 사이 틈. 0이면 첫 행 앞, rows.length면 마지막 행 뒤. */
+  const [dropGap, setDropGap] = useState<number | null>(null);
+
   const visibleLanes = lanes.filter((l) => !hiddenLaneIds.has(l.id));
   const visibleLaneIds = new Set(visibleLanes.map((l) => l.id));
   const rows = buildGrid(events, axis, visibleLaneIds);
@@ -82,10 +91,33 @@ export function TimelineGrid({
 
         {/* 시간 행 */}
         {rows.map((row, rowIndex) => (
+          <div key={`${row.key}-${rowIndex}`}>
+            {/* 이 행 앞에 놓인다는 표시 */}
+            {draggingId !== null && dropGap === rowIndex && (
+              <div className="h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
+            )}
+
           <div
-            key={`${row.key}-${rowIndex}`}
             className="grid border-b border-zinc-100 dark:border-zinc-800"
             style={{ gridTemplateColumns }}
+            onDragOver={(e) => {
+              if (draggingId === null) return;
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "move";
+              // 행의 위/아래 절반 중 어디에 있는지로 삽입할 틈을 정한다.
+              // 어느 열에 놓든 행 위치만 본다(가로 이동은 순서와 무관).
+              const rect = e.currentTarget.getBoundingClientRect();
+              const isBottomHalf = e.clientY > rect.top + rect.height / 2;
+              setDropGap(isBottomHalf ? rowIndex + 1 : rowIndex);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (draggingId !== null && dropGap !== null) {
+                onReorder(draggingId, dropGap);
+              }
+              setDraggingId(null);
+              setDropGap(null);
+            }}
           >
             <div className="border-r border-zinc-100 px-3 py-3 dark:border-zinc-800">
               <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -105,8 +137,21 @@ export function TimelineGrid({
                       <button
                         key={event.id}
                         type="button"
+                        draggable
+                        onDragStart={(e) => {
+                          setDraggingId(event.id);
+                          e.dataTransfer.effectAllowed = "move";
+                          // Firefox는 데이터가 있어야 드래그를 시작한다.
+                          e.dataTransfer.setData("text/plain", String(event.id));
+                        }}
+                        onDragEnd={() => {
+                          setDraggingId(null);
+                          setDropGap(null);
+                        }}
                         onClick={() => onSelectEvent(event.id)}
-                        className="w-full rounded border-l-4 bg-zinc-50 px-2 py-1.5 text-left transition-colors hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                        className={`w-full cursor-grab rounded border-l-4 bg-zinc-50 px-2 py-1.5 text-left transition-colors hover:bg-zinc-100 active:cursor-grabbing dark:bg-zinc-900 dark:hover:bg-zinc-800 ${
+                          draggingId === event.id ? "opacity-40" : ""
+                        }`}
                         style={{ borderLeftColor: event.color ?? lane.color }}
                       >
                         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
@@ -124,6 +169,14 @@ export function TimelineGrid({
                 </div>
               );
             })}
+          </div>
+
+            {/* 마지막 행 뒤에 놓는 경우 */}
+            {draggingId !== null &&
+              rowIndex === rows.length - 1 &&
+              dropGap === rows.length && (
+                <div className="h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
+              )}
           </div>
         ))}
       </div>

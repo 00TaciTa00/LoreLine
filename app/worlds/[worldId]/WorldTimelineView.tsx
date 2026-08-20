@@ -8,7 +8,8 @@ import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { LaneFilter } from "@/components/timeline/LaneFilter";
 import { TimelineGrid } from "@/components/timeline/TimelineGrid";
 import { ViewToggle } from "@/components/timeline/ViewToggle";
-import { laneEventCounts } from "@/lib/timeline/grid";
+import { buildGrid, laneEventCounts } from "@/lib/timeline/grid";
+import { placementForRowDrop } from "@/lib/timeline/grid-reorder";
 import { computeLanes } from "@/lib/timeline/lanes";
 import type { EventItem } from "@/lib/api/types";
 import { useCharacters } from "@/lib/query/characters";
@@ -50,6 +51,22 @@ export function WorldTimelineView() {
   function handleReorder(eventId: number, toIndex: number) {
     const placement = placementForDrop(events ?? [], eventId, toIndex);
     // 제자리에 놓았으면 서버를 부르지 않는다.
+    if (placement === null) return;
+    reorderEvent.mutate({ eventId, placement });
+  }
+
+  /**
+   * 격자에서는 행(=시간)만 순서에 관여한다. 어느 열에 놓았는지는 보지 않는다.
+   * (자세한 이유는 placementForRowDrop 주석 참고)
+   */
+  function handleGridReorder(eventId: number, gapIndex: number) {
+    if (!gridAxis) return;
+    // 격자가 그린 것과 같은 행 구성을 다시 만들어야 틈 번호가 맞는다.
+    const visibleLaneIds = new Set(
+      lanes.filter((l) => !hiddenLaneIds.has(l.id)).map((l) => l.id),
+    );
+    const rows = buildGrid(events ?? [], gridAxis, visibleLaneIds);
+    const placement = placementForRowDrop(rows, eventId, gapIndex);
     if (placement === null) return;
     reorderEvent.mutate({ eventId, placement });
   }
@@ -108,6 +125,7 @@ export function WorldTimelineView() {
             onSelectEvent={(id) =>
               setModalEvent(events?.find((e) => e.id === id) ?? null)
             }
+            onReorder={handleGridReorder}
           />
         ) : (
           <EventCardList
