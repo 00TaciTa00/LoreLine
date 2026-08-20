@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useState } from "react";
 
-import { useDeleteWorld, useUpdateWorld, useWorld } from "@/lib/query/worlds";
+import { useUpdateWorld, useWorld } from "@/lib/query/worlds";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function WorldLayout({
   children,
@@ -14,11 +15,9 @@ export default function WorldLayout({
   const params = useParams<{ worldId: string }>();
   const worldId = Number(params.worldId);
   const pathname = usePathname();
-  const router = useRouter();
 
   const { data: world, isLoading } = useWorld(worldId);
   const updateWorld = useUpdateWorld(worldId);
-  const deleteWorld = useDeleteWorld();
 
   const [editing, setEditing] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
@@ -39,13 +38,6 @@ export default function WorldLayout({
       await updateWorld.mutateAsync({ name: nameDraft.trim() });
     }
     setEditing(false);
-  }
-
-  async function handleDelete() {
-    if (!world) return;
-    if (!confirm(`"${world.name}" 세계관을 삭제할까요?`)) return;
-    await deleteWorld.mutateAsync(worldId);
-    router.push("/");
   }
 
   return (
@@ -84,13 +76,7 @@ export default function WorldLayout({
               </button>
             )}
           </div>
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
-          >
-            세계관 삭제
-          </button>
+          <ThemeToggle />
         </div>
 
         <nav className="mt-3 flex gap-1 overflow-x-auto">

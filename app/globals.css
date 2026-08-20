@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/*
+ * 다크 모드를 OS 설정이 아니라 <html>의 .dark 클래스로 판단하게 바꾼다.
+ * 사용자가 직접 고를 수 있어야 하기 때문이다. OS 설정은 사라지지 않고,
+ * 고른 적이 없을 때의 기본값으로 layout.tsx의 스크립트가 읽어 클래스를 정한다.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,13 +21,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --scrollbar-thumb: #3f3f46;
-    --scrollbar-thumb-hover: #52525b;
-  }
+/* 색 변수도 .dark 기준으로 맞춘다(위 @custom-variant와 같은 이유). */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --scrollbar-thumb: #3f3f46;
+  --scrollbar-thumb-hover: #52525b;
 }
 
 body {

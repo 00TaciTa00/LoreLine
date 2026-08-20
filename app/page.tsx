@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { Modal } from "@/components/ui/Modal";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   RichTextEditor,
   isEmptyRichText,
@@ -19,25 +20,22 @@ import {
 
 export default function Home() {
   const { data: worlds, isLoading, isError } = useWorlds();
-  const deleteWorld = useDeleteWorld();
 
   // "new"면 생성 팝업, World면 그 세계관의 수정 팝업
   const [modalWorld, setModalWorld] = useState<World | "new" | null>(null);
 
-  async function handleDelete(worldId: number, worldName: string) {
-    if (!confirm(`"${worldName}" 세계관을 삭제할까요?`)) return;
-    await deleteWorld.mutateAsync(worldId);
-  }
-
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Loreline
-        </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          세계관을 선택하거나 새로 만들어 서사 타임라인을 관리하세요.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Loreline
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            세계관을 선택하거나 새로 만들어 서사 타임라인을 관리하세요.
+          </p>
+        </div>
+        <ThemeToggle />
       </div>
 
       <div className="flex flex-col gap-3">
@@ -87,13 +85,6 @@ export default function Home() {
               >
                 수정
               </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(w.id, w.name)}
-                className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
-              >
-                삭제
-              </button>
             </li>
           ))}
         </ul>
@@ -118,12 +109,32 @@ function WorldFormModal({
 }) {
   const createWorld = useCreateWorld();
   const updateWorld = useUpdateWorld(world?.id ?? -1);
+  const deleteWorld = useDeleteWorld();
 
   const [name, setName] = useState(world?.name ?? "");
   const [description, setDescription] = useState(world?.description ?? "");
   const [error, setError] = useState<string | null>(null);
 
   const isPending = createWorld.isPending || updateWorld.isPending;
+
+  async function handleDelete() {
+    if (!world) return;
+    if (
+      !confirm(
+        `"${world.name}" 세계관을 삭제할까요?\n안에 있는 공간·인물·사건도 함께 사라집니다.`,
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+    try {
+      await deleteWorld.mutateAsync(world.id);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "삭제에 실패했습니다.");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -170,7 +181,18 @@ function WorldFormModal({
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="mt-2 flex justify-end">
+        <div className="mt-2 flex items-center justify-between">
+          {world ? (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="rounded px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+            >
+              삭제
+            </button>
+          ) : (
+            <span />
+          )}
           <button
             type="submit"
             disabled={isPending}
