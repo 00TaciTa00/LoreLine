@@ -39,7 +39,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   }
 
   return NextResponse.json({
-    place: result.found,
+    place: serializePlace(result.found),
     events: result.relatedEvents.map((r) => serializeEvent(r.event)),
   });
 }

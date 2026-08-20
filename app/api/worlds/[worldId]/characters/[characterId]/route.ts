@@ -46,7 +46,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   }
 
   return NextResponse.json({
-    character: result.found,
+    character: serializeCharacter(result.found),
     events: result.relatedEvents.map((r) => serializeEvent(r.event)),
   });
 }
