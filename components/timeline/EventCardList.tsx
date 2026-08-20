@@ -1,6 +1,7 @@
 "use client";
 
 import type { EventItem } from "@/lib/api/types";
+import { EntityChip } from "@/components/ui/EntityChip";
 import { richTextToPlainText } from "@/components/ui/RichTextEditor";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
 import { formatDisplayTime } from "@/lib/timeline/display-time";
@@ -74,28 +75,14 @@ export function EventCardList({
 
                 <div className="mt-2 flex flex-wrap gap-1">
                   {event.places.map((p) => (
-                    <span
-                      key={`place-${p.id}`}
-                      className="inline-flex items-center gap-1 rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
-                    >
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: p.color }}
-                      />
-                      {p.name}
-                    </span>
+                    <EntityChip key={`place-${p.id}`} name={p.name} color={p.color} />
                   ))}
                   {event.characters.map((c) => (
-                    <span
+                    <EntityChip
                       key={`character-${c.id}`}
-                      className="inline-flex items-center gap-1 rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
-                    >
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: c.color }}
-                      />
-                      {c.name}
-                    </span>
+                      name={c.name}
+                      color={c.color}
+                    />
                   ))}
                 </div>
               </button>
