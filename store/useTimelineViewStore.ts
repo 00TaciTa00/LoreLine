@@ -5,10 +5,11 @@ import { create } from "zustand";
  * 서버 데이터(World/Event/Place/Character)는 React Query가 담당한다.
  *
  * - all       : 모든 사건을 작중 시간순 카드 목록으로
+ * - era       : 상위 기간 → 하위 시각 두 단계로 묶은 목록
  * - place     : 세로축=시간, 가로축=공간 격자
  * - character : 세로축=시간, 가로축=인물 격자
  */
-export type TimelineViewMode = "all" | "place" | "character";
+export type TimelineViewMode = "all" | "era" | "place" | "character";
 
 type TimelineViewState = {
   viewMode: TimelineViewMode;

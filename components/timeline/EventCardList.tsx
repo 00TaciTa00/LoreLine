@@ -2,6 +2,7 @@
 
 import type { EventItem } from "@/lib/api/types";
 import { EntityChip } from "@/components/ui/EntityChip";
+import { DEFAULT_EVENT_COLOR } from "@/lib/colors";
 import { richTextToPlainText } from "@/components/ui/RichTextEditor";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
 import { formatDisplayTime } from "@/lib/timeline/display-time";
@@ -13,8 +14,6 @@ type EventCardListProps = {
   /** 드래그로 순서를 바꿨을 때. 제자리면 호출되지 않는다. */
   onReorder: (eventId: number, toIndex: number) => void;
 };
-
-const DEFAULT_EVENT_COLOR = "#64748b";
 
 /**
  * "전체" 탭의 표시 형식. 축(공간/인물)으로 나누지 않고 모든 사건을

@@ -130,54 +130,14 @@ export function EventFormModal({
   return (
     <Modal title={event ? "사건 수정" : "새 사건"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="사건 제목"
-          required
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        />
         <div>
           <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            작중 시각
+            색상 (전체 뷰에서 이 사건을 나타냄)
           </p>
-          <div className="flex items-center gap-2">
-            <select
-              value={eraId}
-              onChange={(e) => setEraId(e.target.value)}
-              aria-label="상위 기간"
-              className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-            >
-              <option value="">상위 기간 없음</option>
-              {eras.map((it) => (
-                <option key={it.id} value={String(it.id)}>
-                  {it.name}
-                </option>
-              ))}
-            </select>
-            <span className="shrink-0 text-sm text-zinc-400">-</span>
-            <input
-              value={displayTime}
-              onChange={(e) => setDisplayTime(e.target.value)}
-              placeholder="하위 시각 (예: 789년)"
-              aria-label="하위 시각"
-              required
-              className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-            />
-          </div>
-          <p className="mt-1 text-xs text-zinc-500">
-            상위 기간은 비워도 됩니다. 정렬 순서는 아래 &ldquo;작중 순서&rdquo;가 정합니다.
-          </p>
-        </div>
-        <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">내용</p>
-          <RichTextEditor
-            value={description}
-            onChange={setDescription}
-            placeholder="이 사건에서 무슨 일이 있었는지 적어보세요 (선택)"
-          />
+          <ColorPicker value={color} onChange={setColor} />
         </div>
 
+        {/* 작중 순서와 작중 시각은 서로 짝이라 붙여 둔다 */}
         <div>
           <label
             htmlFor="event-placement"
@@ -207,9 +167,68 @@ export function EventFormModal({
 
         <div>
           <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            색상 (전체 뷰에서 이 사건을 나타냄)
+            작중 시각
           </p>
-          <ColorPicker value={color} onChange={setColor} />
+          <div className="flex items-center gap-2">
+            <select
+              value={eraId}
+              onChange={(e) => setEraId(e.target.value)}
+              aria-label="상위 기간"
+              className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            >
+              <option value="">상위 기간 없음</option>
+              {eras.map((it) => (
+                <option key={it.id} value={String(it.id)}>
+                  {it.name}
+                </option>
+              ))}
+            </select>
+            <span className="shrink-0 text-sm text-zinc-400">-</span>
+            <input
+              value={displayTime}
+              onChange={(e) => setDisplayTime(e.target.value)}
+              placeholder="하위 시각 (예: 789년)"
+              aria-label="하위 시각"
+              required
+              className="min-w-0 flex-1 rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            />
+          </div>
+          {/*
+            항목 순서가 또 바뀔 수 있으니 "위/아래"로 가리키지 않는다.
+            예전에는 "아래 작중 순서"였는데 순서를 올리면서 틀린 말이 됐다.
+          */}
+          <p className="mt-1 text-xs text-zinc-500">
+            상위 기간은 비워도 됩니다. 연표에 놓이는 순서는 &ldquo;작중
+            순서&rdquo;가 따로 정합니다.
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor="event-title"
+            className="mb-1.5 block text-sm text-zinc-600 dark:text-zinc-400"
+          >
+            작중 이름
+          </label>
+          <input
+            id="event-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="사건 제목"
+            required
+            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          />
+        </div>
+
+        <div>
+          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+            작중 내용
+          </p>
+          <RichTextEditor
+            value={description}
+            onChange={setDescription}
+            placeholder="이 사건에서 무슨 일이 있었는지 적어보세요 (선택)"
+          />
         </div>
 
         <MultiSelect

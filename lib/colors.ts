@@ -58,3 +58,6 @@ export function normalizeHexColor(input: string): string | null {
   }
   return `#${hex}`;
 }
+
+/** 색을 따로 고르지 않은 사건을 나타내는 색 */
+export const DEFAULT_EVENT_COLOR = "#64748b";

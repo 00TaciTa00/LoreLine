@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { EventCardList } from "@/components/timeline/EventCardList";
+import { EventEraGroups } from "@/components/timeline/EventEraGroups";
 import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { LaneFilter } from "@/components/timeline/LaneFilter";
 import { TimelineGrid } from "@/components/timeline/TimelineGrid";
@@ -38,9 +39,10 @@ export function WorldTimelineView() {
     new Set(),
   );
 
-  // 공간별/인물별은 항상 격자(세로축=시간, 가로축=공간·인물)로 그린다.
-  // 전체는 축 없이 카드 목록으로 늘어놓는다.
-  const gridAxis = viewMode === "all" ? null : viewMode;
+  // 공간별/인물별만 격자(세로축=시간, 가로축=공간·인물)로 그린다.
+  // 전체는 축 없는 카드 목록, 시간별은 기간으로 묶은 목록이다.
+  const gridAxis =
+    viewMode === "place" || viewMode === "character" ? viewMode : null;
 
   const lanes = gridAxis ? computeLanes(gridAxis, places ?? [], characters ?? []) : [];
   const hiddenLaneIds =
@@ -116,6 +118,14 @@ export function WorldTimelineView() {
             아직 등록된 사건이 없습니다. 공간·인물을 먼저 만든 뒤 사건을
             추가해보세요.
           </p>
+        ) : viewMode === "era" ? (
+          <EventEraGroups
+            events={events ?? []}
+            eras={eras ?? []}
+            onSelectEvent={(id) =>
+              setModalEvent(events?.find((e) => e.id === id) ?? null)
+            }
+          />
         ) : gridAxis ? (
           <TimelineGrid
             events={events ?? []}

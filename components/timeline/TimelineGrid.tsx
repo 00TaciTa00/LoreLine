@@ -95,7 +95,7 @@ export function TimelineGrid({
           style={{ gridTemplateColumns }}
         >
           {/* 좌상단 모서리: 가로·세로 양쪽으로 고정된다 */}
-          <div className="sticky left-0 z-10 border-r border-zinc-100 bg-background px-3 py-2 text-xs font-medium text-zinc-400 dark:border-zinc-800">
+          <div className="sticky left-0 z-10 border-l-4 border-l-transparent border-r border-zinc-100 bg-background px-3 py-2 text-xs font-medium text-zinc-400 dark:border-zinc-800">
             작중 시각
           </div>
           {visibleLanes.map((lane) => (
@@ -149,7 +149,15 @@ export function TimelineGrid({
               배경색을 직접 줘야 한다. 없으면 밑을 지나가는 카드가 글자에
               겹쳐 보인다.
             */}
-            <div className="sticky left-0 z-10 border-r border-zinc-100 bg-background px-3 py-3 dark:border-zinc-800">
+            {/*
+              왼쪽 색 띠는 이 행이 어느 상위 기간에 속하는지 나타낸다.
+              기간이 없어도 띠 자리는 비워 두지 않고 투명하게 남긴다. 안 그러면
+              기간이 있는 행과 글자 시작 위치가 4px 어긋난다.
+            */}
+            <div
+              className="sticky left-0 z-10 border-l-4 border-r border-zinc-100 bg-background px-3 py-3 dark:border-zinc-800"
+              style={{ borderLeftColor: row.eraColor ?? "transparent" }}
+            >
               <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 {row.displayTime}
               </p>

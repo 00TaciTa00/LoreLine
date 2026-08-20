@@ -4,6 +4,7 @@ import type { TimelineViewMode } from "@/store/useTimelineViewStore";
 
 const OPTIONS: { value: TimelineViewMode; label: string }[] = [
   { value: "all", label: "전체" },
+  { value: "era", label: "시간별" },
   { value: "place", label: "공간별" },
   { value: "character", label: "인물별" },
 ];

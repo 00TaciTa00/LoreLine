@@ -18,6 +18,14 @@ export type GridRow = {
   displayTime: string;
   /** 같은 행으로 묶을지 판단하는 값 (상위+하위) */
   key: string;
+  /**
+   * 이 행이 속한 상위 기간의 색. 기간이 없으면 null.
+   *
+   * 행은 상위 기간까지 같아야 묶이므로(key에 기간이 들어간다) 행 안의 사건은
+   * 모두 같은 기간이다. 그래도 여기 담아 두는 편이 낫다. 보는 쪽이 key의
+   * 구현에 기대지 않아도 되기 때문이다.
+   */
+  eraColor: string | null;
   /** laneId -> 그 칸에 놓일 사건들 */
   cells: Map<string, EventItem[]>;
   /** 행에 포함된 전체 사건 (레인에 안 걸린 것도 포함) */
@@ -61,6 +69,7 @@ export function buildGrid(
       row = {
         displayTime: formatDisplayTime(event),
         key,
+        eraColor: event.era?.color ?? null,
         cells: new Map(),
         events: [],
       };
