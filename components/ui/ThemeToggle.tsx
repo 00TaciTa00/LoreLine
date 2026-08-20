@@ -33,9 +33,10 @@ export function ThemeToggle() {
       disabled={theme === null}
       aria-label={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
       title={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
-      className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 disabled:opacity-0 dark:hover:bg-zinc-800"
+      className="shrink-0 rounded px-2 py-1 text-base leading-none text-zinc-500 hover:bg-zinc-100 disabled:opacity-0 dark:hover:bg-zinc-800"
     >
-      {theme === null ? "" : isDark ? "☀ 라이트" : "☾ 다크"}
+      {/* 아이콘만 두므로 뜻은 aria-label과 title이 전한다 */}
+      {theme === null ? "" : isDark ? "☀" : "☾"}
     </button>
   );
 }
