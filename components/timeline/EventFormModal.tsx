@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { ColorPicker } from "@/components/ui/ColorPicker";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Modal } from "@/components/ui/Modal";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 import { RichTextEditor, isEmptyRichText } from "@/components/ui/RichTextEditor";
@@ -131,20 +132,13 @@ export function EventFormModal({
     <Modal title={event ? "사건 수정" : "새 사건"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            색상 (전체 뷰에서 이 사건을 나타냄)
-          </p>
+          <FieldLabel hint="전체 뷰에서 이 사건을 나타냅니다">색상</FieldLabel>
           <ColorPicker value={color} onChange={setColor} />
         </div>
 
         {/* 작중 순서와 작중 시각은 서로 짝이라 붙여 둔다 */}
         <div>
-          <label
-            htmlFor="event-placement"
-            className="mb-1.5 block text-sm text-zinc-600 dark:text-zinc-400"
-          >
-            작중 순서
-          </label>
+          <FieldLabel htmlFor="event-placement">작중 순서</FieldLabel>
           <select
             id="event-placement"
             value={placement}
@@ -166,9 +160,12 @@ export function EventFormModal({
         </div>
 
         <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            작중 시각
-          </p>
+          {/*
+            상위 기간은 선택, 하위 시각은 필수다. 둘이 한 줄이라 * 를 어느
+            한쪽에 붙일 수 없어 묶음 이름에 붙이고, 아래 안내로 상위 기간이
+            선택임을 밝힌다.
+          */}
+          <FieldLabel required>작중 시각</FieldLabel>
           <div className="flex items-center gap-2">
             <select
               value={eraId}
@@ -204,12 +201,9 @@ export function EventFormModal({
         </div>
 
         <div>
-          <label
-            htmlFor="event-title"
-            className="mb-1.5 block text-sm text-zinc-600 dark:text-zinc-400"
-          >
+          <FieldLabel htmlFor="event-title" required>
             작중 이름
-          </label>
+          </FieldLabel>
           <input
             id="event-title"
             value={title}
@@ -221,9 +215,7 @@ export function EventFormModal({
         </div>
 
         <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            작중 내용
-          </p>
+          <FieldLabel>작중 내용</FieldLabel>
           <RichTextEditor
             value={description}
             onChange={setDescription}
@@ -232,7 +224,9 @@ export function EventFormModal({
         </div>
 
         <MultiSelect
-          label="공간 (필수, 다중 선택)"
+          label="공간"
+          required
+          hint="여러 개 선택"
           options={places}
           selectedIds={placeIds}
           onChange={setPlaceIds}
@@ -241,7 +235,9 @@ export function EventFormModal({
         />
 
         <MultiSelect
-          label="인물 (필수, 다중 선택)"
+          label="인물"
+          required
+          hint="여러 개 선택"
           options={characters}
           selectedIds={characterIds}
           onChange={setCharacterIds}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Modal } from "@/components/ui/Modal";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
@@ -162,16 +163,22 @@ function WorldFormModal({
   return (
     <Modal title={world ? "세계관 수정" : "새 세계관"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="세계관 이름 (예: 아르텔 대륙기)"
-          required
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        />
+        <div>
+          <FieldLabel htmlFor="world-name" required>
+            세계관 이름
+          </FieldLabel>
+          <input
+            id="world-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="세계관 이름 (예: 아르텔 대륙기)"
+            required
+            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          />
+        </div>
 
         <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">설명</p>
+          <FieldLabel>설명</FieldLabel>
           <RichTextEditor
             value={description}
             onChange={setDescription}

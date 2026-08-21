@@ -2,6 +2,8 @@
 
 import { useId, useRef, useState } from "react";
 
+import { FieldLabel } from "./FieldLabel";
+
 export type MultiSelectOption = {
   id: number;
   name: string;
@@ -10,6 +12,10 @@ export type MultiSelectOption = {
 
 type MultiSelectProps = {
   label: string;
+  /** 최소 하나는 골라야 하는지 */
+  required?: boolean;
+  /** 라벨 뒤에 흐리게 덧붙일 말 */
+  hint?: string;
   options: MultiSelectOption[];
   selectedIds: number[];
   onChange: (ids: number[]) => void;
@@ -27,6 +33,8 @@ type MultiSelectProps = {
  */
 export function MultiSelect({
   label,
+  required,
+  hint,
   options,
   selectedIds,
   onChange,
@@ -94,9 +102,13 @@ export function MultiSelect({
 
   return (
     <div>
-      <p className="mb-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+      {/*
+        입력이 검색칸·칩 여러 개로 나뉘어 있어 htmlFor로 하나를 가리킬 수 없다.
+        대신 검색칸에 aria-required를 붙여 필수라는 사실을 전한다.
+      */}
+      <FieldLabel required={required} hint={hint}>
         {label}
-      </p>
+      </FieldLabel>
 
       {options.length === 0 ? (
         <p className="text-sm text-zinc-400">{emptyHint}</p>
@@ -115,6 +127,7 @@ export function MultiSelect({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             role="combobox"
+            aria-required={required}
             aria-expanded={open}
             aria-controls={listId}
             aria-autocomplete="list"

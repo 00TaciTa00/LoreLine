@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { ColorPicker } from "@/components/ui/ColorPicker";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Modal } from "@/components/ui/Modal";
 import {
   RichTextEditor,
@@ -297,15 +298,21 @@ function EraFormModal({
   return (
     <Modal title={era ? "기간 수정" : "새 기간"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="기간 이름"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-          required
-        />
         <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">설명</p>
+          <FieldLabel htmlFor="era-name" required>
+            기간 이름
+          </FieldLabel>
+          <input
+            id="era-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="기간 이름"
+            required
+            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          />
+        </div>
+        <div>
+          <FieldLabel>설명</FieldLabel>
           <RichTextEditor
             value={description}
             onChange={setDescription}
@@ -313,9 +320,7 @@ function EraFormModal({
           />
         </div>
         <div>
-          <p className="mb-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            색상
-          </p>
+          <FieldLabel>색상</FieldLabel>
           <ColorPicker value={color} onChange={setColor} />
         </div>
 
