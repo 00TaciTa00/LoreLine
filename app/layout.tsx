@@ -36,7 +36,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">
+      {/*
+        min-h-full이 아니라 h-full이어야 한다.
+        min-height만 주면 body의 height가 auto로 남아, 안쪽 flex-1 사슬이
+        전부 내용 기준으로 늘어난다. 그러면 격자의 `h-full overflow-auto`가
+        기댈 높이가 없어 auto로 풀리고, 자기 안에서 스크롤하는 대신 통째로
+        길어져 페이지가 스크롤된다. 그 결과 sticky로 고정해 둔 열 머리글이
+        컨테이너와 함께 밀려 올라가 화면에서 사라졌다.
+      */}
+      <body className="h-full flex flex-col">
         <Providers>{children}</Providers>
       </body>
     </html>
