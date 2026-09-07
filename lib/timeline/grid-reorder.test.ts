@@ -20,7 +20,6 @@ function ev(
     era: null,
     displayTime,
     sortKey: String(id * 1000),
-    color: null,
     createdAt: "",
     updatedAt: "",
     deletedAt: null,

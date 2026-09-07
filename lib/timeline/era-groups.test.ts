@@ -21,7 +21,7 @@ function ev(
   return {
     id, worldId: 1, timelineId: 1, title, description: null,
     era: eraOf, displayTime,
-    sortKey: String(id * 1000), color: null,
+    sortKey: String(id * 1000),
     createdAt: "", updatedAt: "", deletedAt: null,
     places: [], characters: [],
   };

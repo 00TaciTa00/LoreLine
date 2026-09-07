@@ -185,8 +185,6 @@ export const event = pgTable(
     eraId: bigint("era_id", { mode: "number" }).references(() => era.id),
     displayTime: text("display_time").notNull(),
     sortKey: bigint("sort_key", { mode: "bigint" }).notNull(),
-    // "전체" 뷰에서 사건 자체를 구분하는 색상 (hex). 미지정 시 UI에서 기본값 사용.
-    color: text("color"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

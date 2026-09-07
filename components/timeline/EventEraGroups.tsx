@@ -3,7 +3,6 @@
 import type { Era, EventItem } from "@/lib/api/types";
 import { EntityChip } from "@/components/ui/EntityChip";
 import { richTextToPlainText } from "@/components/ui/RichTextEditor";
-import { DEFAULT_EVENT_COLOR } from "@/lib/colors";
 import { buildEraGroups } from "@/lib/timeline/era-groups";
 
 type EventEraGroupsProps = {
@@ -96,7 +95,7 @@ function EventCard({
       type="button"
       onClick={onSelect}
       className="w-full rounded-lg border border-l-4 border-zinc-200 px-4 py-3 text-left transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
-      style={{ borderLeftColor: event.color ?? DEFAULT_EVENT_COLOR }}
+      style={{ borderLeftColor: event.era?.color ?? "transparent" }}
     >
       <p className="font-medium text-zinc-900 dark:text-zinc-50">
         {event.title}

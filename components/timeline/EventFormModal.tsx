@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { ColorPicker } from "@/components/ui/ColorPicker";
 import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Modal } from "@/components/ui/Modal";
 import { MultiSelect } from "@/components/ui/MultiSelect";
@@ -52,7 +51,6 @@ export function EventFormModal({
   );
   const [displayTime, setDisplayTime] = useState(event?.displayTime ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
-  const [color, setColor] = useState(event?.color ?? "#64748b");
   const [placeIds, setPlaceIds] = useState<number[]>(
     event?.places.map((p) => p.id) ?? [],
   );
@@ -98,7 +96,6 @@ export function EventFormModal({
           eraId: eraId ? Number(eraId) : null,
           displayTime: displayTime.trim(),
           description: isEmptyRichText(description) ? null : description,
-          color,
           placeIds,
           characterIds,
           placement: toPlacement(),
@@ -109,7 +106,6 @@ export function EventFormModal({
           eraId: eraId ? Number(eraId) : null,
           displayTime: displayTime.trim(),
           description: isEmptyRichText(description) ? undefined : description,
-          color,
           placeIds,
           characterIds,
           placement: toPlacement(),
@@ -131,11 +127,6 @@ export function EventFormModal({
   return (
     <Modal title={event ? "사건 수정" : "새 사건"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <div>
-          <FieldLabel hint="전체 뷰에서 이 사건을 나타냅니다">색상</FieldLabel>
-          <ColorPicker value={color} onChange={setColor} />
-        </div>
-
         {/* 작중 순서와 작중 시각은 서로 짝이라 붙여 둔다 */}
         <div>
           <FieldLabel htmlFor="event-placement">작중 순서</FieldLabel>

@@ -28,7 +28,7 @@ function ev(
     id, worldId: 1, timelineId: 1, title, description: null,
     era: eraName === null ? null : { id: 1, worldId: 1, name: eraName, description: null, color: "#000", sortKey: "1000", createdAt: "", updatedAt: "", deletedAt: null },
     displayTime,
-    sortKey: String(id * 1000), color: null,
+    sortKey: String(id * 1000),
     createdAt: "", updatedAt: "", deletedAt: null, places, characters,
   };
 }

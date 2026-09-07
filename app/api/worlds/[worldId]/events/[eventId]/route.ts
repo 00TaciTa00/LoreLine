@@ -6,7 +6,6 @@ import { getEventWithRelations } from "@/lib/db/events";
 import { serializeEvent } from "@/lib/db/serialize";
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { parseEraId } from "@/lib/api/parse-era-id";
-import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 
 type RouteParams = { params: Promise<{ worldId: string; eventId: string }> };
 
@@ -26,7 +25,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 // PATCH /api/worlds/:worldId/events/:eventId - 수정
 //
-// body: title, description, displayTime, color, placeIds, characterIds,
+// body: title, description, displayTime, placeIds, characterIds,
 //       placement("first" | "end" | 사건 id, 없으면 순서 유지)
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { eventId } = await params;
@@ -48,12 +47,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         { status: 400 },
       );
     }
-  }
-
-  // 사건 색상은 선택 사항이라 null(색 지움)도 허용한다.
-  const parsedColor = body.color === null ? null : parseColor(body.color);
-  if (parsedColor !== null && !parsedColor.ok) {
-    return NextResponse.json({ error: INVALID_COLOR_MESSAGE }, { status: 400 });
   }
 
   const updated = await withDb(async (db) => {
@@ -89,11 +82,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           ...(body.displayTime !== undefined
             ? { displayTime: body.displayTime }
             : {}),
-          ...(body.color === null
-            ? { color: null }
-            : parsedColor !== null && parsedColor.color !== undefined
-              ? { color: parsedColor.color }
-              : {}),
           ...(sortKey !== undefined ? { sortKey } : {}),
           updatedAt: new Date(),
         })

@@ -62,7 +62,6 @@ export type EventSummary = {
   eraId: number | null;
   displayTime: string;
   sortKey: string;
-  color: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -78,7 +77,6 @@ export type EventItem = {
   era: Era | null;
   displayTime: string;
   sortKey: string;
-  color: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -98,7 +96,6 @@ export type EventInput = {
   eraId?: number | null;
   displayTime: string;
   description?: string | null;
-  color?: string | null;
   placeIds: number[];
   characterIds: number[];
   placement?: EventPlacement;

@@ -177,6 +177,7 @@ export function TimelineGrid({
                         event={event}
                         axis={axis}
                         laneColor={lane.color}
+                        eraColor={row.eraColor}
                         isDragging={draggingId === event.id}
                         isExpanded={expandedChipIds.has(event.id)}
                         onToggleChips={() => toggleChips(event.id)}
@@ -222,6 +223,7 @@ function EventCard({
   event,
   axis,
   laneColor,
+  eraColor,
   isDragging,
   isExpanded,
   onToggleChips,
@@ -232,6 +234,8 @@ function EventCard({
   event: EventItem;
   axis: "place" | "character";
   laneColor: string;
+  /** 이 사건이 속한 상위 기간의 색. 기간이 없으면 null. */
+  eraColor: string | null;
   isDragging: boolean;
   isExpanded: boolean;
   onToggleChips: () => void;
@@ -251,10 +255,11 @@ function EventCard({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`cursor-grab rounded border-l-4 bg-zinc-50 px-2 py-1.5 transition-colors hover:bg-zinc-100 active:cursor-grabbing dark:bg-zinc-900 dark:hover:bg-zinc-800 ${
+      className={`cursor-grab rounded border-l-4 border-t-4 bg-zinc-50 px-2 py-1.5 transition-colors hover:bg-zinc-100 active:cursor-grabbing dark:bg-zinc-900 dark:hover:bg-zinc-800 ${
         isDragging ? "opacity-40" : ""
       }`}
-      style={{ borderLeftColor: event.color ?? laneColor }}
+      // 좌측 띠=이 행의 상위 기간(시간열) 색, 상단 띠=이 열(공간/인물) 색.
+      style={{ borderLeftColor: eraColor ?? "transparent", borderTopColor: laneColor }}
     >
       <button
         type="button"

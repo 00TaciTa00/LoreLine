@@ -14,7 +14,6 @@ function ev(id: number, title: string): EventItem {
     era: null,
     displayTime: `t${id}`,
     sortKey: String(id * 1000),
-    color: null,
     createdAt: "",
     updatedAt: "",
     deletedAt: null,
