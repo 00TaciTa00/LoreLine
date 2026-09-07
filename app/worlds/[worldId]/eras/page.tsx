@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EventFormModal } from "@/components/timeline/EventFormModal";
 import { ColorPicker } from "@/components/ui/ColorPicker";
+import { ListSearchBar } from "@/components/ui/ListSearchBar";
 import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Modal } from "@/components/ui/Modal";
 import {
@@ -27,6 +28,7 @@ import {
   useUpdateEra,
 } from "@/lib/query/eras";
 import { useDragReorder } from "@/lib/hooks/useDragReorder";
+import { useListSearch } from "@/lib/hooks/useListSearch";
 import { placementForDrop } from "@/lib/timeline/reorder";
 import { formatDisplayTime } from "@/lib/timeline/display-time";
 
@@ -53,13 +55,17 @@ export default function ErasPage() {
     if (found) setModalEvent(found);
   }
 
+  const search = useListSearch(eras ?? []);
+
   const drag = useDragReorder(
-    (eras ?? []).map((p) => p.id),
+    search.filtered.map((p) => p.id),
     (eraId, toIndex) => {
       const placement = placementForDrop(eras ?? [], eraId, toIndex);
       if (placement === null) return;
       reorderEra.mutate({ eraId, placement });
     },
+    // 걸러진 목록에서 끌면 숨은 항목 사이 어디에 놓였는지 알 수 없다.
+    { enabled: !search.isSearching },
   );
 
   return (
@@ -79,14 +85,31 @@ export default function ErasPage() {
         </div>
 
         {isLoading && <p className="text-sm text-zinc-500">불러오는 중...</p>}
+
+        {eras && eras.length > 0 && (
+          <ListSearchBar
+            value={search.query}
+            onChange={search.setQuery}
+            placeholder="기간 이름 검색"
+            itemLabel="기간"
+            isSearching={search.isSearching}
+            resultCount={search.filtered.length}
+          />
+        )}
+
         {eras?.length === 0 && (
           <p className="text-sm text-zinc-500">
             아직 등록된 기간이 없습니다.
           </p>
         )}
+        {search.isSearching && search.filtered.length === 0 && (
+          <p className="text-sm text-zinc-500">
+            검색과 일치하는 기간이 없습니다.
+          </p>
+        )}
 
         <ul className="flex flex-col gap-2" {...drag.containerProps}>
-          {eras?.map((p, index) => (
+          {search.filtered.map((p, index) => (
             <li
               key={p.id}
               id={`era-${p.id}`}
@@ -160,8 +183,8 @@ export default function ErasPage() {
               )}
               </div>
 
-              {index === (eras?.length ?? 0) - 1 &&
-                drag.showLineAt(eras?.length ?? 0) && (
+              {index === search.filtered.length - 1 &&
+                drag.showLineAt(search.filtered.length) && (
                   <div className="mt-1 h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
                 )}
             </li>
