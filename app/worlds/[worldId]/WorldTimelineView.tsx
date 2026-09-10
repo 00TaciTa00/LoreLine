@@ -84,7 +84,13 @@ export function WorldTimelineView() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 px-4 py-2 dark:border-zinc-800 sm:px-6">
+      {/*
+        컨트롤 바를 스크롤되는 그리드 위 레이어로 올린다. 그리드의 sticky
+        머릿행이 z-20이라, 이 바 안의 LaneFilter 드롭다운이 같은 z-20이면
+        DOM 순서상 뒤에 오는 머릿행에 가려진다(#24). 바 전체를 z-30 스태킹
+        컨텍스트로 두면 드롭다운이 머릿행 위에 그려진다. (모달은 z-50이라 무관)
+      */}
+      <div className="relative z-30 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 px-4 py-2 dark:border-zinc-800 sm:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <ViewToggle value={viewMode} onChange={setViewMode} />
           {gridAxis && (
