@@ -10,12 +10,12 @@
 
 - **프레임워크**: Next.js (App Router) + TypeScript
 - **스타일**: Tailwind CSS
-- **타임라인 렌더링**: vis-timeline
+- **타임라인 렌더링**: CSS Grid 기반 자체 구현 (세로축=시간; vis-timeline 미사용)
 - **상태관리**: Zustand(클라이언트 UI 상태) + React Query(서버 데이터)
 - **API**: Next.js Route Handler (`app/api/`) — 별도 백엔드 서버 없음
 - **ORM**: Drizzle ORM
 - **DB**: PostgreSQL (Neon 서버리스, scale-to-zero)
-- **배포 대상**: Cloudflare Pages 또는 Netlify (Vercel 미사용)
+- **배포 대상**: Cloudflare Workers (OpenNext 어댑터; Pages·Vercel·Netlify 미사용)
 
 ## 로컬 실행
 
@@ -70,11 +70,13 @@ npm run cf:preview           # OpenNext 빌드 + wrangler dev
 
 - **World**: 목록/생성/이름 수정/삭제(소프트), 홈(`/`)에서 선택 시 `/worlds/[worldId]`로 이동
 - **Place / Character**: 세계관 범위 CRUD + 목록 페이지(`/worlds/[worldId]/places`, `/characters`),
-  색상 배정, 관련/등장 사건 펼쳐보기
-- **Event**: 제목/작중 시각(`displayTime`)/내용/색상 + 공간·인물 다중 선택(둘 다 필수),
+  색상 배정, 이름 검색, 관련/등장 사건 펼쳐보기
+- **Era(시간/기간)**: 세계관 범위 CRUD + 목록 페이지(`/worlds/[worldId]/eras`), 색상 배정,
+  이름 검색, 사건의 상위 기간으로 사용
+- **Event**: 제목/작중 시각(상위 기간 `Era` + 하위 `displayTime`)/내용 + 공간·인물 다중 선택(둘 다 필수),
   `sort_key` 기반 정렬(`lib/db/sort-key.ts`)
-- **타임라인 시각화**: `/worlds/[worldId]`에서 vis-timeline으로 렌더링, 전체/공간별/인물별
-  뷰 토글(스윔레인), 좁은 화면에서는 세로 스윔레인 리스트로 자동 전환
+- **타임라인 시각화**: `/worlds/[worldId]`에서 CSS Grid로 직접 렌더링. 전체(카드 목록)/공간별·인물별
+  (세로축=시간 격자)/시간별(기간별 묶음) 뷰 토글, 좁은 화면에서는 격자가 가로 스크롤
 - **교차 탐색**: 공간·인물 목록의 "관련/등장 사건" → `?eventId=`로 해당 사건 모달 자동 오픈,
   사건 모달의 "바로가기" 링크 → 공간/인물 목록의 해당 항목으로 이동
 - Timeline(시간축) 엔티티는 세계관마다 "메인 타임라인" 하나를 자동 생성해 내부적으로만
@@ -91,15 +93,16 @@ app/
     page.tsx, WorldTimelineView.tsx   타임라인 시각화 페이지
     places/page.tsx              공간 목록/CRUD
     characters/page.tsx          인물 목록/CRUD
+    eras/page.tsx                시간(기간) 목록/CRUD
   providers.tsx                  React Query Provider
 lib/
   db/                    Drizzle 스키마, 요청 단위 DB 클라이언트(withDb), sort_key, 관계 조회 헬퍼
   api/                   클라이언트 fetch 타입/헬퍼
   query/                 엔티티별 React Query 훅
-  timeline/              뷰 모드별 스윔레인 계산 로직
-  colors.ts              Place/Character 색상 팔레트
+  timeline/              뷰 모드별 격자·레인 계산 로직
+  colors.ts              Place/Character/Era 색상 팔레트
 components/
-  timeline/               vis-timeline, 세로 리스트, 뷰 토글, 사건 폼 모달
+  timeline/               CSS Grid 타임라인, 카드/기간 뷰, 뷰 토글, 레인 필터, 사건 폼 모달
   ui/                     Modal, ColorPicker 등 공용 UI
 store/                    Zustand 스토어 (타임라인 뷰 모드 등 UI 상태)
 drizzle/                  생성된 SQL 마이그레이션 파일
