@@ -127,8 +127,8 @@ describe("buildGrid", () => {
 
     expect(rows).toHaveLength(2);
     expect(rows.map((r) => r.displayTime)).toEqual([
-      "제3 성력 - 1년",
-      "제4 성력 - 1년",
+      "제3 성력\u00a0:\n1년",
+      "제4 성력\u00a0:\n1년",
     ]);
   });
 
@@ -143,7 +143,7 @@ describe("buildGrid", () => {
     );
 
     expect(rows).toHaveLength(1);
-    expect(rows[0].displayTime).toBe("제3 성력 - 1년");
+    expect(rows[0].displayTime).toBe("제3 성력\u00a0:\n1년");
   });
 
   it("상위 기간이 없으면 하위 시각만 라벨로 쓴다", () => {

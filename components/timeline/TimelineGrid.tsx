@@ -189,7 +189,14 @@ export function TimelineGrid({
                     gridRow: "1 / -1",
                   }}
                 >
-                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {/*
+                    상위 기간과 하위 시각이 개행으로 나뉘어 들어온다.
+                    whitespace-pre-line이 없으면 HTML이 공백으로 뭉갠다.
+
+                    break-keep은 한국어가 단어 중간에서 갈라지는 것을 막는다.
+                    기본값으로는 "제3 성력, 알라그 시" / "대 :"처럼 끊긴다.
+                  */}
+                  <p className="whitespace-pre-line break-keep text-sm font-medium text-zinc-700 dark:text-zinc-300">
                     {row.displayTime}
                   </p>
                 </div>
