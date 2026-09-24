@@ -26,8 +26,11 @@ const LANE_COL = "13rem";
  *
  * 열이 좁아 다 펼치면 카드가 세로로 길어지고, 한 줄로 이으면 가로로
  * 넘친다. 넘치는 만큼은 "+N"으로 접어두고 눌러서 펼치게 한다.
+ *
+ * 3개였을 때는 이름이 조금만 길어도 13rem 열에서 두 줄로 넘어가 카드 높이가
+ * 들쭉날쭉했다. 2개면 대개 한 줄에 들어간다.
  */
-const CHIP_LIMIT = 3;
+const CHIP_LIMIT = 2;
 
 /**
  * 세로축=시간(위→아래), 가로축=인물/공간 격자.
@@ -275,14 +278,26 @@ function EventCard({
             <EntityChip key={entity.id} name={entity.name} color={entity.color} />
           ))}
 
-          {(hiddenCount > 0 || isExpanded) && (
+          {/*
+            접힌 개수가 0이면 버튼을 아예 두지 않는다. 펼쳐 둔 사이에 딸린
+            항목이 줄어 0이 될 수 있는데, 그때 "-0"이 남으면 안 된다. 버튼이
+            사라져도 칩은 모두 보이는 상태라 갇히지 않는다.
+          */}
+          {hiddenCount > 0 && (
             <button
               type="button"
               onClick={onToggleChips}
               aria-expanded={isExpanded}
+              // 글자는 "+3"/"-3"처럼 부호와 개수만 둔다. 카드가 좁아 "접기"가
+              // 들어가면 칩 한 개 자리를 잡아먹는다. 개수를 붙여 두면 접힌 뒤
+              // 무엇이 몇 개 숨는지 미리 알 수 있다.
+              // 부호만으로는 뜻이 좁으니 화면 낭독기에는 이름을 따로 준다.
+              aria-label={
+                isExpanded ? `${hiddenCount}개 접기` : `${hiddenCount}개 더 보기`
+              }
               className="shrink-0 rounded-full border border-dashed border-zinc-300 px-2 py-0.5 text-xs text-zinc-500 hover:border-zinc-400 hover:text-zinc-700 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:text-zinc-300"
             >
-              {isExpanded ? "접기" : `+${hiddenCount}`}
+              {isExpanded ? `-${hiddenCount}` : `+${hiddenCount}`}
             </button>
           )}
         </div>
