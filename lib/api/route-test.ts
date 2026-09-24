@@ -60,6 +60,20 @@ export function jsonRequest(
 }
 
 /**
+ * 본문을 날것 그대로 보내는 요청. 깨진 JSON처럼 직렬화할 수 없는 경우에 쓴다.
+ */
+export function rawRequest(
+  method: "POST" | "PATCH",
+  body: string,
+): NextRequest {
+  return new NextRequest("http://test.local/api", {
+    method,
+    body,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+/**
  * 핸들러의 두 번째 인자를 만든다.
  *
  * Next 16에서 `params`는 Promise다. 값은 항상 문자열이다 — URL에서 오기

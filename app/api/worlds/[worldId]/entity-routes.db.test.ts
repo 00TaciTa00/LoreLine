@@ -11,6 +11,7 @@ import {
 
 import {
   jsonRequest,
+  rawRequest,
   readJson,
   routeParams,
   setRouteDb,
@@ -333,6 +334,38 @@ describe.each(entities)(
       );
 
       expect(body.events).toHaveLength(0);
+    });
+
+    it("본문이 깨진 JSON이면 400이다", async () => {
+      const response = await list.POST(
+        rawRequest("POST", "{name:"),
+        routeParams({ worldId: String(worldId) }),
+      );
+
+      expect(response.status).toBe(400);
+    });
+
+    it("경로의 worldId가 숫자가 아니면 400이다", async () => {
+      const response = await list.GET(
+        jsonRequest("GET"),
+        routeParams({ worldId: "abc" }),
+      );
+
+      expect(response.status).toBe(400);
+    });
+
+    it("경로의 항목 id가 숫자가 아니면 400이다", async () => {
+      const response = await item.GET(
+        jsonRequest("GET"),
+        routeParams({
+          worldId: String(worldId),
+          characterId: "abc",
+          placeId: "abc",
+          eraId: "abc",
+        }),
+      );
+
+      expect(response.status).toBe(400);
     });
   },
 );
