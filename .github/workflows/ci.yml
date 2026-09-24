@@ -31,6 +31,11 @@ jobs:
       # 고치는 비용도 싸다. 실패는 첫 단계에서 바로 드러나는 편이 낫다.
       - run: npm run format:check
       - run: npm run lint
+
+      # LayoutProps·PageProps·RouteContext는 Next가 .next/types에 만들어 주는
+      # 전역 타입이다. 로컬에는 next dev가 만들어 둔 것이 있지만 CI는 빈
+      # 체크아웃이라 없다. 전체 빌드 없이 타입만 생성한다(Next 15.5+).
+      - run: npx next typegen
       - run: npx tsc --noEmit
 
       # DB 테스트는 PGlite(인메모리)라 외부 Postgres도 비밀값도 필요 없다.
