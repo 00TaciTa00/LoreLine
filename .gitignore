@@ -42,7 +42,7 @@ yarn-error.log*
 .dev.vars
 
 # local agent tooling state
-/.omc
+.omc/
 
 # typescript
 *.tsbuildinfo
