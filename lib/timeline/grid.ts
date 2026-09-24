@@ -1,6 +1,6 @@
 import type { EventItem } from "@/lib/api/types";
 
-import { displayTimeKey, formatDisplayTime } from "./display-time";
+import { displayTimeKey, formatGridDisplayTime } from "./display-time";
 import type { Lane } from "./lanes";
 
 /**
@@ -14,7 +14,12 @@ import type { Lane } from "./lanes";
  * "3년째 겨울(밤)"은 다른 행이 된다.
  */
 export type GridRow = {
-  /** 이 행에 보여줄 작중 시각 (상위 기간이 있으면 합쳐진 형태) */
+  /**
+   * 이 행에 보여줄 작중 시각.
+   *
+   * 상위 기간이 있으면 "상위 :\n하위"로 줄이 나뉘어 있다. 보는 쪽에서
+   * whitespace-pre-line으로 살려야 한다.
+   */
   displayTime: string;
   /** 같은 행으로 묶을지 판단하는 값 (상위+하위) */
   key: string;
@@ -67,7 +72,7 @@ export function buildGrid(
     let row = rows.at(-1);
     if (!row || row.key !== key) {
       row = {
-        displayTime: formatDisplayTime(event),
+        displayTime: formatGridDisplayTime(event),
         key,
         eraColor: event.era?.color ?? null,
         cells: new Map(),
