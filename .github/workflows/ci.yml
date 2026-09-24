@@ -1,0 +1,37 @@
+name: CI
+
+# main에 올라가는 것과 main으로 들어오려는 것만 검사한다.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# 같은 브랜치에 새 커밋이 오면 앞선 실행을 취소한다. 어차피 결과가 덮인다.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 이 job id가 그대로 상태 체크 이름이 된다. 브랜치 보호 규칙에서
+  # 이름으로 지목해야 하므로 한글 표시 이름을 따로 두지 않는다.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # .nvmrc 하나로 로컬과 CI의 Node 버전을 맞춘다.
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # 서식 → 정적 검사 → 타입 → 테스트 순. 앞쪽일수록 빨리 끝나고
+      # 고치는 비용도 싸다. 실패는 첫 단계에서 바로 드러나는 편이 낫다.
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npx tsc --noEmit
+
+      # DB 테스트는 PGlite(인메모리)라 외부 Postgres도 비밀값도 필요 없다.
+      - run: npm test
