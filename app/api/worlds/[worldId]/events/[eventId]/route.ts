@@ -6,15 +6,21 @@ import { getEventWithRelations } from "@/lib/db/events";
 import { serializeEvent } from "@/lib/db/serialize";
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { parseEraId } from "@/lib/api/parse-era-id";
+import {
+  invalidBody,
+  invalidId,
+  parseId,
+  readJsonBody,
+} from "@/lib/api/request";
 
 type RouteParams = { params: Promise<{ worldId: string; eventId: string }> };
 
 // GET /api/worlds/:worldId/events/:eventId - 사건 단건 + 공간/인물 관계
 export async function GET(_request: NextRequest, { params }: RouteParams) {
-  const { eventId } = await params;
-  const found = await withDb((db) =>
-    getEventWithRelations(db, Number(eventId)),
-  );
+  const eventIdNum = parseId((await params).eventId);
+  if (eventIdNum === null) return invalidId();
+
+  const found = await withDb((db) => getEventWithRelations(db, eventIdNum));
 
   if (!found) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
@@ -28,9 +34,11 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 // body: title, description, displayTime, placeIds, characterIds,
 //       placement("first" | "end" | 사건 id, 없으면 순서 유지)
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
-  const { eventId } = await params;
-  const eventIdNum = Number(eventId);
-  const body = await request.json();
+  const eventIdNum = parseId((await params).eventId);
+  if (eventIdNum === null) return invalidId();
+
+  const body = await readJsonBody(request);
+  if (!body) return invalidBody();
 
   if (body.placeIds !== undefined) {
     if (!Array.isArray(body.placeIds) || body.placeIds.length === 0) {
@@ -72,15 +80,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       await tx
         .update(event)
         .set({
-          ...(body.title !== undefined ? { title: body.title } : {}),
+          ...(body.title !== undefined ? { title: body.title as string } : {}),
           ...(body.description !== undefined
-            ? { description: body.description }
+            ? { description: body.description as string | null }
             : {}),
           ...(body.eraId !== undefined
             ? { eraId: parseEraId(body.eraId) }
             : {}),
           ...(body.displayTime !== undefined
-            ? { displayTime: body.displayTime }
+            ? { displayTime: body.displayTime as string }
             : {}),
           ...(sortKey !== undefined ? { sortKey } : {}),
           updatedAt: new Date(),
@@ -124,13 +132,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // (event_place/event_character 조인 행은 그대로 두되, 삭제된 사건은 이후
 // 목록/관계 조회에서 필터링된다)
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
-  const { eventId } = await params;
+  const eventIdNum = parseId((await params).eventId);
+  if (eventIdNum === null) return invalidId();
 
   const [deleted] = await withDb((db) =>
     db
       .update(event)
       .set({ deletedAt: new Date() })
-      .where(and(eq(event.id, Number(eventId)), isNull(event.deletedAt)))
+      .where(and(eq(event.id, eventIdNum), isNull(event.deletedAt)))
       .returning(),
   );
 
