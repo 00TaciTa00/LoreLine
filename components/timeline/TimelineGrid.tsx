@@ -91,8 +91,15 @@ export function TimelineGrid({
 
   const laneIds = visibleLanes.map((l) => l.id);
   const gridTemplateColumns = `${TIME_COL} repeat(${visibleLanes.length}, minmax(${LANE_COL}, 1fr))`;
-  // 열마다 첫 등장 ~ 마지막 등장 구간. 흐름선을 이 사이에만 긋는다.
-  const lifespans = laneLifespans(rows, laneIds);
+  /**
+   * 열마다 첫 등장 ~ 마지막 등장 구간. 흐름선을 이 사이에만 긋는다.
+   *
+   * 인물별 격자에만 그린다. 선의 길이가 "이 인물이 언제부터 언제까지의
+   * 인물인가"를 말해주기 때문이다. 공간은 그런 식으로 읽히지 않는다 —
+   * 장소는 사건 사이에 사라지는 것이 아니라 그냥 안 쓰인 것뿐이다.
+   */
+  const lifespans =
+    axis === "character" ? laneLifespans(rows, laneIds) : new Map();
 
   return (
     <div className="h-full overflow-auto">
