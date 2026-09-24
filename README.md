@@ -37,6 +37,25 @@ npm run cf:preview           # OpenNext 빌드 + wrangler dev
 로컬 workerd에 `DATABASE_URL`을 넘기려면 `.dev.vars` 파일에
 `DATABASE_URL=...` 한 줄을 둔다(gitignore 처리됨).
 
+## 코드 서식
+
+서식은 Prettier가 정한다(설정: `.prettierrc.json`). ESLint의 서식 규칙은
+`eslint-config-prettier`로 꺼 두어 둘이 부딪히지 않는다.
+
+```bash
+npm run format        # 전체 파일 서식 맞추기
+npm run format:check  # 서식이 어긋난 파일만 알려주기 (수정 안 함)
+```
+
+전체 포맷 커밋은 `.git-blame-ignore-revs`에 적어 두었다. `git blame`에서
+건너뛰려면 한 번만 설정한다:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+GitHub의 blame 화면은 이 파일을 알아서 읽는다.
+
 ## DB / 마이그레이션 스크립트
 
 | 스크립트 | 설명 |

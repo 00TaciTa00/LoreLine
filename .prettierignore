@@ -1,0 +1,7 @@
+# .gitignore에 있는 경로(node_modules·.next·.open-next 등)는 Prettier가 알아서 건너뛴다.
+
+# lockfile은 npm이 쓰는 파일이라 손대지 않는다.
+package-lock.json
+
+# drizzle-kit이 생성하는 마이그레이션 스냅샷. 다시 생성하면 원래 모양으로 돌아간다.
+drizzle/meta/
