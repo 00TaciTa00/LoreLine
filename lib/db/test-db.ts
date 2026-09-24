@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 
@@ -74,4 +74,20 @@ export async function seedEvent(
     .returning({ id: event.id });
 
   return created.id;
+}
+
+/**
+ * 모든 테이블을 비운다.
+ *
+ * 테스트마다 createTestDb를 부르면 마이그레이션 7개를 매번 다시 돌리느라
+ * 한 건당 몇 초씩 든다. DB는 파일당 한 번만 만들고 테스트 사이에는 이걸로
+ * 치우는 편이 훨씬 빠르다. CASCADE라 순서를 따질 필요가 없고,
+ * RESTART IDENTITY로 serial 번호도 되돌린다.
+ *
+ * `character`는 Postgres 타입 이름과 겹치므로 따옴표가 필요하다.
+ */
+export async function resetTables(db: Db): Promise<void> {
+  await db.execute(
+    sql`TRUNCATE TABLE event_character, event_place, event, timeline, era, place, "character", world RESTART IDENTITY CASCADE`,
+  );
 }
