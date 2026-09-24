@@ -1,6 +1,12 @@
 import { and, asc, count, eq, isNull } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  invalidBody,
+  invalidId,
+  parseId,
+  readJsonBody,
+} from "@/lib/api/request";
 import { INVALID_COLOR_MESSAGE, parseColor } from "@/lib/api/validate-color";
 import { pickColor } from "@/lib/colors";
 import type { Db } from "@/lib/db";
@@ -63,13 +69,14 @@ export function createEntityListRoutes(config: EntityRouteConfig) {
   const { table, order, listKey, itemKey } = config;
 
   async function GET(_request: NextRequest, { params }: Ctx) {
-    const { worldId } = await params;
+    const worldIdNum = parseId((await params).worldId);
+    if (worldIdNum === null) return invalidId();
 
     const rows = await withDb((db) =>
       db
         .select()
         .from(table)
-        .where(and(eq(table.worldId, Number(worldId)), isNull(table.deletedAt)))
+        .where(and(eq(table.worldId, worldIdNum), isNull(table.deletedAt)))
         .orderBy(asc(table.sortKey)),
     );
 
@@ -77,11 +84,15 @@ export function createEntityListRoutes(config: EntityRouteConfig) {
   }
 
   async function POST(request: NextRequest, { params }: Ctx) {
-    const { worldId } = await params;
-    const body = await request.json();
-    const worldIdNum = Number(worldId);
+    const worldIdNum = parseId((await params).worldId);
+    if (worldIdNum === null) return invalidId();
 
-    if (!body?.name || typeof body.name !== "string") {
+    const body = await readJsonBody(request);
+    if (!body) return invalidBody();
+
+    // const에 담아야 아래 클로저 안까지 string으로 좁혀진 채로 남는다.
+    const name = body.name;
+    if (!name || typeof name !== "string") {
       return NextResponse.json(
         { error: "name은 필수 문자열입니다." },
         { status: 400 },
@@ -114,8 +125,8 @@ export function createEntityListRoutes(config: EntityRouteConfig) {
         .insert(table)
         .values({
           worldId: worldIdNum,
-          name: body.name,
-          description: body.description ?? null,
+          name,
+          description: (body.description as string | null | undefined) ?? null,
           color: parsedColor.color ?? pickColor(existingCount),
           sortKey,
         })
@@ -146,7 +157,8 @@ export function createEntityItemRoutes(config: EntityRouteConfig) {
 
   async function GET(_request: NextRequest, { params }: Ctx) {
     const resolved = await params;
-    const id = Number(resolved[idParam]);
+    const id = parseId(resolved[idParam]);
+    if (id === null || parseId(resolved.worldId) === null) return invalidId();
 
     const result = await withDb(async (db) => {
       const [found] = await db
@@ -169,9 +181,12 @@ export function createEntityItemRoutes(config: EntityRouteConfig) {
 
   async function PATCH(request: NextRequest, { params }: Ctx) {
     const resolved = await params;
-    const id = Number(resolved[idParam]);
-    const worldIdNum = Number(resolved.worldId);
-    const body = await request.json();
+    const id = parseId(resolved[idParam]);
+    const worldIdNum = parseId(resolved.worldId);
+    if (id === null || worldIdNum === null) return invalidId();
+
+    const body = await readJsonBody(request);
+    if (!body) return invalidBody();
 
     const parsedColor = parseColor(body.color);
     if (!parsedColor.ok) {
@@ -192,9 +207,9 @@ export function createEntityItemRoutes(config: EntityRouteConfig) {
       return db
         .update(table)
         .set({
-          ...(body.name !== undefined ? { name: body.name } : {}),
+          ...(body.name !== undefined ? { name: body.name as string } : {}),
           ...(body.description !== undefined
-            ? { description: body.description }
+            ? { description: body.description as string | null }
             : {}),
           ...(parsedColor.color !== undefined
             ? { color: parsedColor.color }
@@ -213,7 +228,8 @@ export function createEntityItemRoutes(config: EntityRouteConfig) {
 
   async function DELETE(_request: NextRequest, { params }: Ctx) {
     const resolved = await params;
-    const id = Number(resolved[idParam]);
+    const id = parseId(resolved[idParam]);
+    if (id === null || parseId(resolved.worldId) === null) return invalidId();
 
     const [deleted] = await withDb((db) =>
       db

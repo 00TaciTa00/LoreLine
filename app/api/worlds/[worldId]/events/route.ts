@@ -9,15 +9,21 @@ import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { getOrCreateDefaultTimeline } from "@/lib/db/timelines";
 import { isWorldAlive } from "@/lib/db/worlds";
 import { parseEraId } from "@/lib/api/parse-era-id";
+import {
+  invalidBody,
+  invalidId,
+  parseId,
+  readJsonBody,
+} from "@/lib/api/request";
 
 type RouteParams = { params: Promise<{ worldId: string }> };
 
 // GET /api/worlds/:worldId/events - 작중 시간순(sort_key asc) 사건 목록 (공간/인물 포함)
 export async function GET(_request: NextRequest, { params }: RouteParams) {
-  const { worldId } = await params;
-  const events = await withDb((db) =>
-    listEventsWithRelations(db, Number(worldId)),
-  );
+  const worldIdNum = parseId((await params).worldId);
+  if (worldIdNum === null) return invalidId();
+
+  const events = await withDb((db) => listEventsWithRelations(db, worldIdNum));
   return NextResponse.json({ events });
 }
 
@@ -30,17 +36,22 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 //   characterIds: number[] (필수, 최소 1개)
 //   placement (선택) - "first" | "end" | 사건 id(그 뒤에 삽입). 기본값은 맨 끝
 export async function POST(request: NextRequest, { params }: RouteParams) {
-  const { worldId } = await params;
-  const body = await request.json();
-  const worldIdNum = Number(worldId);
+  const worldIdNum = parseId((await params).worldId);
+  if (worldIdNum === null) return invalidId();
 
-  if (!body?.title || typeof body.title !== "string") {
+  const body = await readJsonBody(request);
+  if (!body) return invalidBody();
+
+  // const에 담아야 아래 클로저 안까지 string으로 좁혀진 채로 남는다.
+  const title = body.title;
+  const displayTime = body.displayTime;
+  if (!title || typeof title !== "string") {
     return NextResponse.json(
       { error: "title은 필수 문자열입니다." },
       { status: 400 },
     );
   }
-  if (!body?.displayTime || typeof body.displayTime !== "string") {
+  if (!displayTime || typeof displayTime !== "string") {
     return NextResponse.json(
       { error: "displayTime은 필수 문자열입니다." },
       { status: 400 },
@@ -48,7 +59,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
   const placeIds: number[] = Array.isArray(body.placeIds) ? body.placeIds : [];
   const characterIds: number[] = Array.isArray(body.characterIds)
-    ? body.characterIds
+    ? (body.characterIds as number[])
     : [];
   if (placeIds.length === 0) {
     return NextResponse.json(
@@ -81,10 +92,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         .values({
           worldId: worldIdNum,
           timelineId,
-          title: body.title,
-          description: body.description ?? null,
+          title,
+          description: (body.description as string | null | undefined) ?? null,
           eraId: parseEraId(body.eraId),
-          displayTime: body.displayTime,
+          displayTime,
           sortKey,
         })
         .returning({ id: event.id });
