@@ -16,7 +16,16 @@ import {
   setRouteDb,
 } from "@/lib/api/route-test";
 import type { Db } from "@/lib/db";
-import { character, era, place, world } from "@/lib/db/schema";
+import {
+  character,
+  era,
+  event,
+  eventCharacter,
+  eventPlace,
+  place,
+  timeline,
+  world,
+} from "@/lib/db/schema";
 import { createTestDb, resetTables } from "@/lib/db/test-db";
 
 vi.mock("@/lib/db", async (importOriginal) => {
@@ -47,6 +56,9 @@ const entities = [
     itemKey: "character",
     list: characterList,
     item: characterItem,
+    linkEvent: async (db: Db, eventId: number, itemId: number) => {
+      await db.insert(eventCharacter).values({ eventId, characterId: itemId });
+    },
   },
   {
     label: "공간",
@@ -55,6 +67,9 @@ const entities = [
     itemKey: "place",
     list: placeList,
     item: placeItem,
+    linkEvent: async (db: Db, eventId: number, itemId: number) => {
+      await db.insert(eventPlace).values({ eventId, placeId: itemId });
+    },
   },
   {
     label: "시대",
@@ -63,12 +78,18 @@ const entities = [
     itemKey: "era",
     list: eraList,
     item: eraItem,
+    linkEvent: async (db: Db, eventId: number, itemId: number) => {
+      await db
+        .update(event)
+        .set({ eraId: itemId })
+        .where(eq(event.id, eventId));
+    },
   },
 ] as const;
 
 describe.each(entities)(
   "/api/worlds/:worldId/$listKey ($label)",
-  ({ table, listKey, itemKey, list, item }) => {
+  ({ table, listKey, itemKey, list, item, linkEvent }) => {
     let db: Db;
     let close: () => Promise<void>;
     let worldId: number;
@@ -246,6 +267,72 @@ describe.each(entities)(
       const names = (body[listKey] as { name: string }[]).map((r) => r.name);
 
       expect(names).toEqual(["첫째", "둘째", "셋째"]);
+    });
+
+    /**
+     * 교차 탐색(항목 -> 딸린 사건)은 셋의 구현이 유일하게 다른 곳이다.
+     * 인물·공간은 연결 테이블을 조인하고 시대는 event.era_id를 바로 본다.
+     */
+    it("단건 조회에 딸린 사건이 작중 시간순으로 실린다", async () => {
+      const created = await create({ name: "주인공" });
+
+      const [t] = await db
+        .insert(timeline)
+        .values({ worldId, name: "메인 타임라인" })
+        .returning();
+      for (const [title, sortKey] of [
+        ["나중 일", 2000n],
+        ["먼저 일", 1000n],
+      ] as const) {
+        const [e] = await db
+          .insert(event)
+          .values({
+            worldId,
+            timelineId: t.id,
+            title,
+            displayTime: title,
+            sortKey,
+          })
+          .returning();
+        await linkEvent(db, e.id, created.item.id);
+      }
+
+      const { status, body } = await readJson(
+        await item.GET(jsonRequest("GET"), itemParams(created.item.id)),
+      );
+
+      expect(status).toBe(200);
+      expect((body.events as { title: string }[]).map((e) => e.title)).toEqual([
+        "먼저 일",
+        "나중 일",
+      ]);
+    });
+
+    it("지운 사건은 딸린 사건 목록에서 빠진다", async () => {
+      const created = await create({ name: "주인공" });
+
+      const [t] = await db
+        .insert(timeline)
+        .values({ worldId, name: "메인 타임라인" })
+        .returning();
+      const [removed] = await db
+        .insert(event)
+        .values({
+          worldId,
+          timelineId: t.id,
+          title: "지운 사건",
+          displayTime: "언젠가",
+          sortKey: 1000n,
+          deletedAt: new Date(),
+        })
+        .returning();
+      await linkEvent(db, removed.id, created.item.id);
+
+      const { body } = await readJson(
+        await item.GET(jsonRequest("GET"), itemParams(created.item.id)),
+      );
+
+      expect(body.events).toHaveLength(0);
     });
   },
 );
