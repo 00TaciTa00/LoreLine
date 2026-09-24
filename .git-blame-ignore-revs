@@ -1,0 +1,5 @@
+# git blame에서 건너뛸 커밋. 서식만 바꾼 커밋을 적는다.
+# 로컬에서 쓰려면: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# 전체 파일 Prettier 포맷 (#25)
+3213c19ebfa868a07d89c1cb4ea41e6e895c2820
