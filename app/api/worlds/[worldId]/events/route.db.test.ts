@@ -11,6 +11,7 @@ import {
 
 import {
   jsonRequest,
+  rawRequest,
   readJson,
   routeParams,
   setRouteDb,
@@ -158,6 +159,25 @@ describe("/api/worlds/:worldId/events", () => {
     );
 
     expect(status).toBe(400);
+  });
+
+  it("본문이 깨진 JSON이면 500이 아니라 400이다", async () => {
+    const response = await POST(
+      rawRequest("POST", "{title:"),
+      routeParams({ worldId: String(worldId) }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await db.select().from(event)).toHaveLength(0);
+  });
+
+  it("경로의 worldId가 숫자가 아니면 400이다", async () => {
+    const response = await GET(
+      jsonRequest("GET"),
+      routeParams({ worldId: "abc" }),
+    );
+
+    expect(response.status).toBe(400);
   });
 
   it("title이 없으면 400이다", async () => {
