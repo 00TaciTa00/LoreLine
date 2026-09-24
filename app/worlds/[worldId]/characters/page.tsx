@@ -44,9 +44,9 @@ export default function CharactersPage() {
   // 인물 상세 API가 주는 등장 사건에는 공간·인물 관계가 빠져 있어 모달에 쓸 수 없다.
   const { data: events } = useEvents(worldId);
 
-  const [modalCharacter, setModalCharacter] = useState<Character | "new" | null>(
-    null,
-  );
+  const [modalCharacter, setModalCharacter] = useState<
+    Character | "new" | null
+  >(null);
   const [modalEvent, setModalEvent] = useState<EventItem | null>(null);
   // 설명 펼침과 등장 사건 펼침은 서로 독립적으로 동작한다.
   const [descriptionId, setDescriptionId] = useState<number | null>(null);
@@ -62,7 +62,11 @@ export default function CharactersPage() {
   const drag = useDragReorder(
     search.filtered.map((c) => c.id),
     (characterId, toIndex) => {
-      const placement = placementForDrop(characters ?? [], characterId, toIndex);
+      const placement = placementForDrop(
+        characters ?? [],
+        characterId,
+        toIndex,
+      );
       if (placement === null) return;
       reorderCharacter.mutate({ characterId, placement });
     },
@@ -100,9 +104,7 @@ export default function CharactersPage() {
         )}
 
         {characters?.length === 0 && (
-          <p className="text-sm text-zinc-500">
-            아직 등록된 인물이 없습니다.
-          </p>
+          <p className="text-sm text-zinc-500">아직 등록된 인물이 없습니다.</p>
         )}
         {search.isSearching && search.filtered.length === 0 && (
           <p className="text-sm text-zinc-500">
@@ -123,66 +125,66 @@ export default function CharactersPage() {
               )}
 
               <div className="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <span
-                  className="h-3 w-3 shrink-0 cursor-grab rounded-full active:cursor-grabbing"
-                  style={{ backgroundColor: c.color }}
-                  title="끌어서 순서 변경"
-                />
-                {/* 항목을 누르면 설명을 펼치고 접는다 */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDescriptionId(descriptionId === c.id ? null : c.id)
-                  }
-                  aria-expanded={descriptionId === c.id}
-                  className="min-w-0 flex-1 text-left"
-                >
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                    {c.name}
-                  </p>
-                  {c.description && descriptionId !== c.id && (
-                    <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
-                      {richTextToPlainText(c.description)}
+                <div className="flex items-center gap-3">
+                  <span
+                    className="h-3 w-3 shrink-0 cursor-grab rounded-full active:cursor-grabbing"
+                    style={{ backgroundColor: c.color }}
+                    title="끌어서 순서 변경"
+                  />
+                  {/* 항목을 누르면 설명을 펼치고 접는다 */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDescriptionId(descriptionId === c.id ? null : c.id)
+                    }
+                    aria-expanded={descriptionId === c.id}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <p className="font-medium text-zinc-900 dark:text-zinc-50">
+                      {c.name}
                     </p>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpandedId(expandedId === c.id ? null : c.id)
-                  }
-                  className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  등장 사건
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModalCharacter(c)}
-                  className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  수정
-                </button>
-              </div>
-
-              {descriptionId === c.id && (
-                <div className="mt-2 border-t border-zinc-100 pt-2 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-                  {c.description && !isEmptyRichText(c.description) ? (
-                    <RichTextView html={c.description} />
-                  ) : (
-                    <p className="text-zinc-400">설명이 없습니다.</p>
-                  )}
+                    {c.description && descriptionId !== c.id && (
+                      <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
+                        {richTextToPlainText(c.description)}
+                      </p>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedId(expandedId === c.id ? null : c.id)
+                    }
+                    className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    등장 사건
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalCharacter(c)}
+                    className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    수정
+                  </button>
                 </div>
-              )}
 
-              {expandedId === c.id && (
-                <RelatedEvents
-                  worldId={worldId}
-                  characterId={c.id}
-                  onSelectEvent={openEvent}
-                  allEvents={events ?? []}
-                />
-              )}
+                {descriptionId === c.id && (
+                  <div className="mt-2 border-t border-zinc-100 pt-2 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                    {c.description && !isEmptyRichText(c.description) ? (
+                      <RichTextView html={c.description} />
+                    ) : (
+                      <p className="text-zinc-400">설명이 없습니다.</p>
+                    )}
+                  </div>
+                )}
+
+                {expandedId === c.id && (
+                  <RelatedEvents
+                    worldId={worldId}
+                    characterId={c.id}
+                    onSelectEvent={openEvent}
+                    allEvents={events ?? []}
+                  />
+                )}
               </div>
 
               {index === search.filtered.length - 1 &&
@@ -252,7 +254,13 @@ function RelatedEvents({
             onClick={() => onSelectEvent(ev.id)}
             className="text-left text-sm text-zinc-600 hover:underline dark:text-zinc-400"
           >
-            {formatDisplayTime(allEvents.find((e) => e.id === ev.id) ?? { era: null, displayTime: ev.displayTime })} · {ev.title}
+            {formatDisplayTime(
+              allEvents.find((e) => e.id === ev.id) ?? {
+                era: null,
+                displayTime: ev.displayTime,
+              },
+            )}{" "}
+            · {ev.title}
           </button>
         </li>
       ))}
@@ -276,9 +284,7 @@ function CharacterFormModal({
   const deleteCharacter = useDeleteCharacter(worldId);
 
   const [name, setName] = useState(character?.name ?? "");
-  const [description, setDescription] = useState(
-    character?.description ?? "",
-  );
+  const [description, setDescription] = useState(character?.description ?? "");
   const [color, setColor] = useState(
     character?.color ?? pickColor(existingCount),
   );

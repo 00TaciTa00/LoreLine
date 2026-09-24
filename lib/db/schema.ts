@@ -82,7 +82,9 @@ export const place = pgTable(
     // 스윔레인/타임라인에서 이 공간을 나타내는 색상 (hex, 예: "#3b82f6")
     color: text("color").notNull().default("#64748b"),
     // 목록과 격자 열의 순서. Event.sort_key와 같은 채번 전략을 쓴다.
-    sortKey: bigint("sort_key", { mode: "bigint" }).notNull().default(sql`0`),
+    sortKey: bigint("sort_key", { mode: "bigint" })
+      .notNull()
+      .default(sql`0`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -112,7 +114,9 @@ export const character = pgTable(
     // 스윔레인/타임라인에서 이 인물을 나타내는 색상 (hex, 예: "#3b82f6")
     color: text("color").notNull().default("#64748b"),
     // 목록과 격자 열의 순서. Event.sort_key와 같은 채번 전략을 쓴다.
-    sortKey: bigint("sort_key", { mode: "bigint" }).notNull().default(sql`0`),
+    sortKey: bigint("sort_key", { mode: "bigint" })
+      .notNull()
+      .default(sql`0`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -143,7 +147,9 @@ export const era = pgTable(
     description: text("description"),
     color: text("color").notNull().default("#64748b"),
     // 목록 순서. Event.sort_key와 같은 채번 전략을 쓴다.
-    sortKey: bigint("sort_key", { mode: "bigint" }).notNull().default(sql`0`),
+    sortKey: bigint("sort_key", { mode: "bigint" })
+      .notNull()
+      .default(sql`0`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

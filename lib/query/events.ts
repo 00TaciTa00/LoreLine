@@ -76,7 +76,9 @@ export function useCreateEvent(worldId: number) {
         body: JSON.stringify(input),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -90,7 +92,9 @@ export function useUpdateEvent(worldId: number, eventId: number) {
         { method: "PATCH", body: JSON.stringify(input) },
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -104,7 +108,9 @@ export function useDeleteEvent(worldId: number) {
         { method: "DELETE" },
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }

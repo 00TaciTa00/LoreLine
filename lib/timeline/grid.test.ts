@@ -6,14 +6,28 @@ import { buildGrid, laneEventCounts } from "./grid";
 
 function place(id: number, name: string): Place {
   return {
-    id, worldId: 1, name, description: null, color: "#000", sortKey: "1000",
-    createdAt: "", updatedAt: "", deletedAt: null,
+    id,
+    worldId: 1,
+    name,
+    description: null,
+    color: "#000",
+    sortKey: "1000",
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
   };
 }
 function character(id: number, name: string): Character {
   return {
-    id, worldId: 1, name, description: null, color: "#000", sortKey: "1000",
-    createdAt: "", updatedAt: "", deletedAt: null,
+    id,
+    worldId: 1,
+    name,
+    description: null,
+    color: "#000",
+    sortKey: "1000",
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
   };
 }
 function ev(
@@ -25,11 +39,32 @@ function ev(
   eraName: string | null = null,
 ): EventItem {
   return {
-    id, worldId: 1, timelineId: 1, title, description: null,
-    era: eraName === null ? null : { id: 1, worldId: 1, name: eraName, description: null, color: "#000", sortKey: "1000", createdAt: "", updatedAt: "", deletedAt: null },
+    id,
+    worldId: 1,
+    timelineId: 1,
+    title,
+    description: null,
+    era:
+      eraName === null
+        ? null
+        : {
+            id: 1,
+            worldId: 1,
+            name: eraName,
+            description: null,
+            color: "#000",
+            sortKey: "1000",
+            createdAt: "",
+            updatedAt: "",
+            deletedAt: null,
+          },
     displayTime,
     sortKey: String(id * 1000),
-    createdAt: "", updatedAt: "", deletedAt: null, places, characters,
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
+    places,
+    characters,
   };
 }
 
@@ -146,7 +181,11 @@ describe("buildGrid", () => {
       ALL_PLACES,
     );
 
-    expect(rows.map((r) => r.displayTime)).toEqual(["1년 봄", "2년 여름", "1년 봄"]);
+    expect(rows.map((r) => r.displayTime)).toEqual([
+      "1년 봄",
+      "2년 여름",
+      "1년 봄",
+    ]);
   });
 
   it("여러 공간에 걸친 사건은 각 칸에 모두 놓인다", () => {

@@ -6,9 +6,15 @@ import { NO_ERA_LABEL, buildEraGroups } from "./era-groups";
 
 function era(id: number, name: string, color = "#111"): Era {
   return {
-    id, worldId: 1, name, description: null, color,
+    id,
+    worldId: 1,
+    name,
+    description: null,
+    color,
     sortKey: String(id * 1000),
-    createdAt: "", updatedAt: "", deletedAt: null,
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
   };
 }
 
@@ -19,11 +25,19 @@ function ev(
   eraOf: Era | null,
 ): EventItem {
   return {
-    id, worldId: 1, timelineId: 1, title, description: null,
-    era: eraOf, displayTime,
+    id,
+    worldId: 1,
+    timelineId: 1,
+    title,
+    description: null,
+    era: eraOf,
+    displayTime,
     sortKey: String(id * 1000),
-    createdAt: "", updatedAt: "", deletedAt: null,
-    places: [], characters: [],
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
+    places: [],
+    characters: [],
   };
 }
 

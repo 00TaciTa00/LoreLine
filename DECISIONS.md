@@ -66,7 +66,7 @@
 
 - 앱 쿼리는 **pooled**(`-pooler` 호스트), 마이그레이션은 **direct**를 쓰는 것이 Neon 권장 방식이다.
   마이그레이션은 세션 상태(`SET` 등)에 의존할 수 있는데 PgBouncer 트랜잭션 모드에서는 이게 유지되지 않아,
-  풀링을 거치면 `prepared statement "s0" already exists` 같은 *원인을 짐작하기 어려운* 에러로 실패할 수 있다.
+  풀링을 거치면 `prepared statement "s0" already exists` 같은 _원인을 짐작하기 어려운_ 에러로 실패할 수 있다.
 - `drizzle.config.ts`는 `DATABASE_URL_UNPOOLED`를 우선 사용하고 없으면 `DATABASE_URL`로 폴백한다.
 - 현재 `.env`에는 `DATABASE_URL` 하나만 있고 `-pooler`가 붙지 않은 direct 문자열이라
   마이그레이션은 정상 동작한다. 트래픽이 늘면 앱용으로 pooled 문자열을 따로 넣는 것이 좋다.

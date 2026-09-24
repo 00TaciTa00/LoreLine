@@ -1,8 +1,7 @@
 import { normalizeHexColor } from "@/lib/colors";
 
 export type ColorParseResult =
-  | { ok: true; color: string | undefined }
-  | { ok: false };
+  { ok: true; color: string | undefined } | { ok: false };
 
 /**
  * 요청 본문의 color 값을 검증해 `#rrggbb`로 정규화한다.

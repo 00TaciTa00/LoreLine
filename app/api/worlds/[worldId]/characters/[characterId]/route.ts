@@ -22,7 +22,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const [found] = await db
       .select()
       .from(character)
-      .where(and(eq(character.id, characterIdNum), isNull(character.deletedAt)));
+      .where(
+        and(eq(character.id, characterIdNum), isNull(character.deletedAt)),
+      );
 
     if (!found) return null;
 

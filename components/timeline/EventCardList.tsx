@@ -60,7 +60,9 @@ export function EventCardList({
                 className="w-full cursor-grab rounded-lg border border-zinc-200 border-l-4 px-4 py-3 text-left transition-colors hover:border-zinc-400 hover:bg-zinc-50 active:cursor-grabbing dark:border-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
                 style={{ borderLeftColor: event.era?.color ?? "transparent" }}
               >
-                <p className="text-xs text-zinc-500">{formatDisplayTime(event)}</p>
+                <p className="text-xs text-zinc-500">
+                  {formatDisplayTime(event)}
+                </p>
                 <p className="mt-0.5 font-medium text-zinc-900 dark:text-zinc-50">
                   {event.title}
                 </p>
@@ -73,7 +75,11 @@ export function EventCardList({
 
                 <div className="mt-2 flex flex-wrap gap-1">
                   {event.places.map((p) => (
-                    <EntityChip key={`place-${p.id}`} name={p.name} color={p.color} />
+                    <EntityChip
+                      key={`place-${p.id}`}
+                      name={p.name}
+                      color={p.color}
+                    />
                   ))}
                   {event.characters.map((c) => (
                     <EntityChip

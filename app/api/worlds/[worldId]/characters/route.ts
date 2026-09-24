@@ -20,7 +20,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .select()
       .from(character)
       .where(
-        and(eq(character.worldId, Number(worldId)), isNull(character.deletedAt)),
+        and(
+          eq(character.worldId, Number(worldId)),
+          isNull(character.deletedAt),
+        ),
       )
       .orderBy(asc(character.sortKey)),
   );
@@ -82,5 +85,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  return NextResponse.json({ character: serializeCharacter(created) }, { status: 201 });
+  return NextResponse.json(
+    { character: serializeCharacter(created) },
+    { status: 201 },
+  );
 }

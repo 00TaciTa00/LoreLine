@@ -36,7 +36,9 @@ export function useCreatePlace(worldId: number) {
         body: JSON.stringify(input),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "places"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "places"],
+      });
     },
   });
 }
@@ -50,11 +52,15 @@ export function useUpdatePlace(worldId: number, placeId: number) {
         body: JSON.stringify(input),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "places"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "places"],
+      });
       queryClient.invalidateQueries({
         queryKey: ["worlds", worldId, "places", placeId],
       });
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -103,7 +109,9 @@ export function useReorderPlace(worldId: number) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
       // 격자 열 순서가 공간 순서를 따르므로 사건 화면도 다시 그린다.
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -116,8 +124,12 @@ export function useDeletePlace(worldId: number) {
         method: "DELETE",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "places"] });
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "places"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }

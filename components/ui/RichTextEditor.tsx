@@ -100,51 +100,55 @@ export function RichTextView({ html }: { html: string }) {
 function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
 
-  const buttons: { label: string; title: string; active: boolean; run: () => void }[] =
-    [
-      {
-        label: "B",
-        title: "굵게",
-        active: editor.isActive("bold"),
-        run: () => editor.chain().focus().toggleBold().run(),
-      },
-      {
-        label: "I",
-        title: "기울임",
-        active: editor.isActive("italic"),
-        run: () => editor.chain().focus().toggleItalic().run(),
-      },
-      {
-        label: "S",
-        title: "취소선",
-        active: editor.isActive("strike"),
-        run: () => editor.chain().focus().toggleStrike().run(),
-      },
-      {
-        label: "H",
-        title: "제목",
-        active: editor.isActive("heading", { level: 3 }),
-        run: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-      },
-      {
-        label: "•",
-        title: "목록",
-        active: editor.isActive("bulletList"),
-        run: () => editor.chain().focus().toggleBulletList().run(),
-      },
-      {
-        label: "1.",
-        title: "번호 목록",
-        active: editor.isActive("orderedList"),
-        run: () => editor.chain().focus().toggleOrderedList().run(),
-      },
-      {
-        label: "❝",
-        title: "인용",
-        active: editor.isActive("blockquote"),
-        run: () => editor.chain().focus().toggleBlockquote().run(),
-      },
-    ];
+  const buttons: {
+    label: string;
+    title: string;
+    active: boolean;
+    run: () => void;
+  }[] = [
+    {
+      label: "B",
+      title: "굵게",
+      active: editor.isActive("bold"),
+      run: () => editor.chain().focus().toggleBold().run(),
+    },
+    {
+      label: "I",
+      title: "기울임",
+      active: editor.isActive("italic"),
+      run: () => editor.chain().focus().toggleItalic().run(),
+    },
+    {
+      label: "S",
+      title: "취소선",
+      active: editor.isActive("strike"),
+      run: () => editor.chain().focus().toggleStrike().run(),
+    },
+    {
+      label: "H",
+      title: "제목",
+      active: editor.isActive("heading", { level: 3 }),
+      run: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+    },
+    {
+      label: "•",
+      title: "목록",
+      active: editor.isActive("bulletList"),
+      run: () => editor.chain().focus().toggleBulletList().run(),
+    },
+    {
+      label: "1.",
+      title: "번호 목록",
+      active: editor.isActive("orderedList"),
+      run: () => editor.chain().focus().toggleOrderedList().run(),
+    },
+    {
+      label: "❝",
+      title: "인용",
+      active: editor.isActive("blockquote"),
+      run: () => editor.chain().focus().toggleBlockquote().run(),
+    },
+  ];
 
   return (
     <div className="flex flex-wrap gap-0.5 border-b border-zinc-200 p-1 dark:border-zinc-800">

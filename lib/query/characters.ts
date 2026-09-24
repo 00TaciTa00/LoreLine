@@ -1,11 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { fetchJson } from "@/lib/api/client";
-import type {
-  Character,
-  EventPlacement,
-  EventSummary,
-} from "@/lib/api/types";
+import type { Character, EventPlacement, EventSummary } from "@/lib/api/types";
 import { reorderById } from "@/lib/timeline/reorder";
 
 export function useCharacters(worldId: number) {
@@ -37,10 +33,10 @@ export function useCreateCharacter(worldId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CharacterInput) =>
-      fetchJson<{ character: Character }>(
-        `/api/worlds/${worldId}/characters`,
-        { method: "POST", body: JSON.stringify(input) },
-      ),
+      fetchJson<{ character: Character }>(`/api/worlds/${worldId}/characters`, {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["worlds", worldId, "characters"],
@@ -64,7 +60,9 @@ export function useUpdateCharacter(worldId: number, characterId: number) {
       queryClient.invalidateQueries({
         queryKey: ["worlds", worldId, "characters", characterId],
       });
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -115,7 +113,9 @@ export function useReorderCharacter(worldId: number) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
       // 격자 열 순서가 인물 순서를 따르므로 사건 화면도 다시 그린다.
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -132,7 +132,9 @@ export function useDeleteCharacter(worldId: number) {
       queryClient.invalidateQueries({
         queryKey: ["worlds", worldId, "characters"],
       });
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }

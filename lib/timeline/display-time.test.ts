@@ -4,23 +4,27 @@ import { displayTimeKey, formatDisplayTime } from "./display-time";
 
 describe("formatDisplayTime", () => {
   it("상위 기간이 있으면 하이픈으로 잇는다", () => {
-    expect(formatDisplayTime({ era: { name: "제3 성력" }, displayTime: "789년" })).toBe(
-      "제3 성력 - 789년",
-    );
+    expect(
+      formatDisplayTime({ era: { name: "제3 성력" }, displayTime: "789년" }),
+    ).toBe("제3 성력 - 789년");
   });
 
   it("상위 기간이 없으면 하위 시각만 쓴다", () => {
-    expect(formatDisplayTime({ era: null, displayTime: "789년" })).toBe("789년");
+    expect(formatDisplayTime({ era: null, displayTime: "789년" })).toBe(
+      "789년",
+    );
   });
 
   it("상위 기간이 공백뿐이면 없는 것으로 본다", () => {
-    expect(formatDisplayTime({ era: { name: "   " }, displayTime: "789년" })).toBe("789년");
+    expect(
+      formatDisplayTime({ era: { name: "   " }, displayTime: "789년" }),
+    ).toBe("789년");
   });
 
   it("상위 기간의 앞뒤 공백은 정리한다", () => {
-    expect(formatDisplayTime({ era: { name: " 제3 성력 " }, displayTime: "789년" })).toBe(
-      "제3 성력 - 789년",
-    );
+    expect(
+      formatDisplayTime({ era: { name: " 제3 성력 " }, displayTime: "789년" }),
+    ).toBe("제3 성력 - 789년");
   });
 });
 

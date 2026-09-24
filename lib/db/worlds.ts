@@ -12,10 +12,7 @@ type WorldRow = typeof world.$inferSelect;
  * 받아 쓰기 때문에, 이 확인이 없으면 이미 삭제된 세계관에도 새 공간·인물·사건을
  * 만들 수 있다. 만들어진 데이터는 어느 목록에도 안 나타나면서 DB에만 쌓인다.
  */
-export async function isWorldAlive(
-  db: Db,
-  worldId: number,
-): Promise<boolean> {
+export async function isWorldAlive(db: Db, worldId: number): Promise<boolean> {
   if (!Number.isInteger(worldId)) return false;
 
   const [found] = await db

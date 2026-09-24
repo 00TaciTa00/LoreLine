@@ -40,7 +40,8 @@ export function ListSearchBar({
       {/* 결과가 없으면 바꿀 순서 자체가 없으므로 안내하지 않는다 */}
       {isSearching && resultCount > 0 && (
         <p className="mt-1 text-xs text-zinc-500">
-          검색 중에는 순서를 바꿀 수 없습니다. 검색어를 지우면 다시 끌 수 있습니다.
+          검색 중에는 순서를 바꿀 수 없습니다. 검색어를 지우면 다시 끌 수
+          있습니다.
         </p>
       )}
     </div>

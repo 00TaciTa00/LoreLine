@@ -66,12 +66,20 @@ describe("softDeleteWorld", () => {
       .insert(eventCharacter)
       .values({ eventId: e.id, characterId: c.id });
 
-    return { worldId: w.id, timelineId: t.id, placeId: p.id, characterId: c.id, eventId: e.id };
+    return {
+      worldId: w.id,
+      timelineId: t.id,
+      placeId: p.id,
+      characterId: c.id,
+      eventId: e.id,
+    };
   }
 
   /** 삭제되지 않은(살아있는) 하위 데이터 건수 */
   async function liveCounts(worldId: number) {
-    const live = async (table: typeof place | typeof character | typeof event | typeof timeline) =>
+    const live = async (
+      table: typeof place | typeof character | typeof event | typeof timeline,
+    ) =>
       (
         await db
           .select({ id: table.id })

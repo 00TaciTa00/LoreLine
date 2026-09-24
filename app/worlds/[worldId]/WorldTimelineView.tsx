@@ -44,7 +44,9 @@ export function WorldTimelineView() {
   const gridAxis =
     viewMode === "place" || viewMode === "character" ? viewMode : null;
 
-  const lanes = gridAxis ? computeLanes(gridAxis, places ?? [], characters ?? []) : [];
+  const lanes = gridAxis
+    ? computeLanes(gridAxis, places ?? [], characters ?? [])
+    : [];
   const hiddenLaneIds =
     gridAxis === "place" ? hiddenPlaceIds : hiddenCharacterIds;
   const setHiddenLaneIds =

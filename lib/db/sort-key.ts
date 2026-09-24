@@ -20,8 +20,7 @@ export function appendSortKey(lastSortKey: bigint | null): bigint {
 }
 
 export type InsertSortKeyResult =
-  | { needsRebalance: false; sortKey: bigint }
-  | { needsRebalance: true };
+  { needsRebalance: false; sortKey: bigint } | { needsRebalance: true };
 
 /**
  * before/after 사이에 이벤트를 삽입할 때 사용할 sort_key를 계산한다.
@@ -73,10 +72,7 @@ export async function rebalanceTimeline(
 
     for (let i = 0; i < events.length; i++) {
       const sortKey = INITIAL_GAP * BigInt(i + 1);
-      await tx
-        .update(event)
-        .set({ sortKey })
-        .where(eq(event.id, events[i].id));
+      await tx.update(event).set({ sortKey }).where(eq(event.id, events[i].id));
     }
   });
 }
@@ -89,9 +85,7 @@ export async function rebalanceTimeline(
  * 세 경우를 명시적으로 구분한다.
  */
 export type InsertTarget =
-  | { kind: "end" }
-  | { kind: "first" }
-  | { kind: "after"; eventId: number };
+  { kind: "end" } | { kind: "first" } | { kind: "after"; eventId: number };
 
 /**
  * target 위치에 삽입할 sort_key를 계산한다. 간격이 좁아 재정렬이 필요하면

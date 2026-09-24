@@ -24,7 +24,12 @@ export default defineConfig({
           name: "unit",
           environment: "node",
           include: ["**/*.test.ts"],
-          exclude: ["node_modules/**", ".next/**", ".open-next/**", "lib/db/**"],
+          exclude: [
+            "node_modules/**",
+            ".next/**",
+            ".open-next/**",
+            "lib/db/**",
+          ],
         },
       },
       {

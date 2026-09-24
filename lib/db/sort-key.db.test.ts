@@ -78,7 +78,12 @@ describe("rebalanceTimeline / resolveSortKeyForInsert (실제 DB)", () => {
     it("다른 타임라인의 사건은 건드리지 않는다", async () => {
       const otherTimelineId = await seedTimeline(db);
       await seedEvent(db, timelineId, "대상", 5n);
-      const untouchedId = await seedEvent(db, otherTimelineId, "타 타임라인", 7n);
+      const untouchedId = await seedEvent(
+        db,
+        otherTimelineId,
+        "타 타임라인",
+        7n,
+      );
 
       await rebalanceTimeline(db, timelineId);
 
@@ -92,7 +97,9 @@ describe("rebalanceTimeline / resolveSortKeyForInsert (실제 DB)", () => {
 
   describe("resolveSortKeyForInsert", () => {
     it("빈 타임라인의 end는 INITIAL_GAP이다", async () => {
-      const key = await resolveSortKeyForInsert(db, timelineId, { kind: "end" });
+      const key = await resolveSortKeyForInsert(db, timelineId, {
+        kind: "end",
+      });
       expect(key).toBe(INITIAL_GAP);
     });
 
@@ -100,7 +107,9 @@ describe("rebalanceTimeline / resolveSortKeyForInsert (실제 DB)", () => {
       await seedEvent(db, timelineId, "A", 1000n);
       await seedEvent(db, timelineId, "B", 2000n);
 
-      const key = await resolveSortKeyForInsert(db, timelineId, { kind: "end" });
+      const key = await resolveSortKeyForInsert(db, timelineId, {
+        kind: "end",
+      });
       expect(key).toBe(3000n);
     });
 

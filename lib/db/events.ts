@@ -35,7 +35,9 @@ async function attachRelations(
   const eventIds = events.map((e) => e.id);
 
   const eraIds = [
-    ...new Set(events.map((e) => e.eraId).filter((id): id is number => id !== null)),
+    ...new Set(
+      events.map((e) => e.eraId).filter((id): id is number => id !== null),
+    ),
   ];
 
   const [eras, placeLinks, characterLinks] = await Promise.all([
@@ -49,7 +51,9 @@ async function attachRelations(
       .select({ eventId: eventPlace.eventId, place })
       .from(eventPlace)
       .innerJoin(place, eq(eventPlace.placeId, place.id))
-      .where(and(inArray(eventPlace.eventId, eventIds), isNull(place.deletedAt))),
+      .where(
+        and(inArray(eventPlace.eventId, eventIds), isNull(place.deletedAt)),
+      ),
     db
       .select({ eventId: eventCharacter.eventId, character })
       .from(eventCharacter)
@@ -62,10 +66,7 @@ async function attachRelations(
       ),
   ]);
 
-  const placesByEvent = new Map<
-    number,
-    ReturnType<typeof serializePlace>[]
-  >();
+  const placesByEvent = new Map<number, ReturnType<typeof serializePlace>[]>();
   for (const link of placeLinks) {
     const list = placesByEvent.get(link.eventId) ?? [];
     list.push(serializePlace(link.place));

@@ -52,7 +52,9 @@ describe("ordering (공간 기준, 실제 DB)", () => {
 
   describe("resolveSortKey", () => {
     it("빈 목록의 end는 INITIAL_GAP", async () => {
-      const key = await resolveSortKey(db, worldId, placeOrder, { kind: "end" });
+      const key = await resolveSortKey(db, worldId, placeOrder, {
+        kind: "end",
+      });
       expect(key).toBe(INITIAL_GAP);
     });
 
@@ -60,7 +62,9 @@ describe("ordering (공간 기준, 실제 DB)", () => {
       await addPlace("A", 1000n);
       await addPlace("B", 2000n);
 
-      const key = await resolveSortKey(db, worldId, placeOrder, { kind: "end" });
+      const key = await resolveSortKey(db, worldId, placeOrder, {
+        kind: "end",
+      });
       expect(key).toBe(3000n);
     });
 
@@ -129,7 +133,9 @@ describe("ordering (공간 기준, 실제 DB)", () => {
 
       await addPlace("A", 1000n);
 
-      const key = await resolveSortKey(db, worldId, placeOrder, { kind: "end" });
+      const key = await resolveSortKey(db, worldId, placeOrder, {
+        kind: "end",
+      });
       // 남의 세계관 999999가 아니라 우리 A(1000) 기준이어야 한다.
       expect(key).toBe(2000n);
     });

@@ -67,7 +67,9 @@ export function LaneFilter({
             </div>
 
             {lanes.length === 0 && (
-              <p className="p-2 text-sm text-zinc-500">등록된 {label}이 없습니다.</p>
+              <p className="p-2 text-sm text-zinc-500">
+                등록된 {label}이 없습니다.
+              </p>
             )}
 
             {lanes.map((lane) => (

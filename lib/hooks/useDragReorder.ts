@@ -36,8 +36,7 @@ export type DragReorder = {
   itemProps: (id: number, index: number) => ItemProps;
   /** 목록 바깥으로 나가면 삽입선을 지운다 */
   containerProps:
-    | { onDragLeave: (e: React.DragEvent) => void }
-    | Record<string, never>;
+    { onDragLeave: (e: React.DragEvent) => void } | Record<string, never>;
 };
 
 export function useDragReorder(

@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  INITIAL_GAP,
-  MIN_GAP,
-  appendSortKey,
-  insertSortKey,
-} from "./sort-key";
+import { INITIAL_GAP, MIN_GAP, appendSortKey, insertSortKey } from "./sort-key";
 
 describe("appendSortKey", () => {
   it("빈 타임라인에서는 INITIAL_GAP으로 시작한다", () => {

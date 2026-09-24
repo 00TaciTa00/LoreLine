@@ -6,7 +6,10 @@ import { useState } from "react";
 import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Modal } from "@/components/ui/Modal";
 import { MultiSelect } from "@/components/ui/MultiSelect";
-import { RichTextEditor, isEmptyRichText } from "@/components/ui/RichTextEditor";
+import {
+  RichTextEditor,
+  isEmptyRichText,
+} from "@/components/ui/RichTextEditor";
 import type {
   Character,
   Era,
@@ -14,7 +17,11 @@ import type {
   EventPlacement,
   Place,
 } from "@/lib/api/types";
-import { useCreateEvent, useDeleteEvent, useUpdateEvent } from "@/lib/query/events";
+import {
+  useCreateEvent,
+  useDeleteEvent,
+  useUpdateEvent,
+} from "@/lib/query/events";
 import { formatDisplayTime } from "@/lib/timeline/display-time";
 
 type EventFormModalProps = {
@@ -46,9 +53,7 @@ export function EventFormModal({
   const deleteEvent = useDeleteEvent(worldId);
 
   const [title, setTitle] = useState(event?.title ?? "");
-  const [eraId, setEraId] = useState(
-    event?.era ? String(event.era.id) : "",
-  );
+  const [eraId, setEraId] = useState(event?.era ? String(event.era.id) : "");
   const [displayTime, setDisplayTime] = useState(event?.displayTime ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
   const [placeIds, setPlaceIds] = useState<number[]>(
@@ -65,7 +70,9 @@ export function EventFormModal({
 
   const isPending = createEvent.isPending || updateEvent.isPending;
   const selectedPlaces = places.filter((p) => placeIds.includes(p.id));
-  const selectedCharacters = characters.filter((c) => characterIds.includes(c.id));
+  const selectedCharacters = characters.filter((c) =>
+    characterIds.includes(c.id),
+  );
   // 자기 자신 뒤로 보내는 선택지는 의미가 없으므로 제외한다.
   const otherEvents = events.filter((e) => e.id !== event?.id);
 

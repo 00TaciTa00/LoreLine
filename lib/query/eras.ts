@@ -54,7 +54,9 @@ export function useUpdateEra(worldId: number, eraId: number) {
         queryKey: ["worlds", worldId, "eras", eraId],
       });
       // 사건이 기간 이름·색을 함께 보여주므로 같이 새로 그린다.
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }
@@ -68,7 +70,9 @@ export function useDeleteEra(worldId: number) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "eras"] });
-      queryClient.invalidateQueries({ queryKey: ["worlds", worldId, "events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["worlds", worldId, "events"],
+      });
     },
   });
 }

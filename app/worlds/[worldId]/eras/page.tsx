@@ -98,9 +98,7 @@ export default function ErasPage() {
         )}
 
         {eras?.length === 0 && (
-          <p className="text-sm text-zinc-500">
-            아직 등록된 기간이 없습니다.
-          </p>
+          <p className="text-sm text-zinc-500">아직 등록된 기간이 없습니다.</p>
         )}
         {search.isSearching && search.filtered.length === 0 && (
           <p className="text-sm text-zinc-500">
@@ -121,66 +119,66 @@ export default function ErasPage() {
               )}
 
               <div className="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <span
-                  className="h-3 w-3 shrink-0 cursor-grab rounded-full active:cursor-grabbing"
-                  style={{ backgroundColor: p.color }}
-                  title="끌어서 순서 변경"
-                />
-                {/* 항목을 누르면 설명을 펼치고 접는다 */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDescriptionId(descriptionId === p.id ? null : p.id)
-                  }
-                  aria-expanded={descriptionId === p.id}
-                  className="min-w-0 flex-1 text-left"
-                >
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                    {p.name}
-                  </p>
-                  {p.description && descriptionId !== p.id && (
-                    <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
-                      {richTextToPlainText(p.description)}
+                <div className="flex items-center gap-3">
+                  <span
+                    className="h-3 w-3 shrink-0 cursor-grab rounded-full active:cursor-grabbing"
+                    style={{ backgroundColor: p.color }}
+                    title="끌어서 순서 변경"
+                  />
+                  {/* 항목을 누르면 설명을 펼치고 접는다 */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDescriptionId(descriptionId === p.id ? null : p.id)
+                    }
+                    aria-expanded={descriptionId === p.id}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <p className="font-medium text-zinc-900 dark:text-zinc-50">
+                      {p.name}
                     </p>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpandedId(expandedId === p.id ? null : p.id)
-                  }
-                  className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  이 기간의 사건
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModalEra(p)}
-                  className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  수정
-                </button>
-              </div>
-
-              {descriptionId === p.id && (
-                <div className="mt-2 border-t border-zinc-100 pt-2 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
-                  {p.description && !isEmptyRichText(p.description) ? (
-                    <RichTextView html={p.description} />
-                  ) : (
-                    <p className="text-zinc-400">설명이 없습니다.</p>
-                  )}
+                    {p.description && descriptionId !== p.id && (
+                      <p className="mt-0.5 line-clamp-1 text-sm text-zinc-500">
+                        {richTextToPlainText(p.description)}
+                      </p>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedId(expandedId === p.id ? null : p.id)
+                    }
+                    className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    이 기간의 사건
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalEra(p)}
+                    className="shrink-0 rounded px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    수정
+                  </button>
                 </div>
-              )}
 
-              {expandedId === p.id && (
-                <RelatedEvents
-                  worldId={worldId}
-                  eraId={p.id}
-                  onSelectEvent={openEvent}
-                  allEvents={events ?? []}
-                />
-              )}
+                {descriptionId === p.id && (
+                  <div className="mt-2 border-t border-zinc-100 pt-2 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                    {p.description && !isEmptyRichText(p.description) ? (
+                      <RichTextView html={p.description} />
+                    ) : (
+                      <p className="text-zinc-400">설명이 없습니다.</p>
+                    )}
+                  </div>
+                )}
+
+                {expandedId === p.id && (
+                  <RelatedEvents
+                    worldId={worldId}
+                    eraId={p.id}
+                    onSelectEvent={openEvent}
+                    allEvents={events ?? []}
+                  />
+                )}
               </div>
 
               {index === search.filtered.length - 1 &&
@@ -250,7 +248,13 @@ function RelatedEvents({
             onClick={() => onSelectEvent(ev.id)}
             className="text-left text-sm text-zinc-600 hover:underline dark:text-zinc-400"
           >
-            {formatDisplayTime(allEvents.find((e) => e.id === ev.id) ?? { era: null, displayTime: ev.displayTime })} · {ev.title}
+            {formatDisplayTime(
+              allEvents.find((e) => e.id === ev.id) ?? {
+                era: null,
+                displayTime: ev.displayTime,
+              },
+            )}{" "}
+            · {ev.title}
           </button>
         </li>
       ))}

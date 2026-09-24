@@ -98,9 +98,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
         />
 
         {hexInvalid && (
-          <span className="text-xs text-red-600">
-            #rgb 또는 #rrggbb 형식
-          </span>
+          <span className="text-xs text-red-600">#rgb 또는 #rrggbb 형식</span>
         )}
       </div>
     </div>

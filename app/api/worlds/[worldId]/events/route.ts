@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { event, eventCharacter, eventPlace, withDb } from "@/lib/db";
-import { getEventWithRelations, listEventsWithRelations } from "@/lib/db/events";
+import {
+  getEventWithRelations,
+  listEventsWithRelations,
+} from "@/lib/db/events";
 import { parsePlacement, resolveSortKeyForInsert } from "@/lib/db/sort-key";
 import { getOrCreateDefaultTimeline } from "@/lib/db/timelines";
 import { isWorldAlive } from "@/lib/db/worlds";

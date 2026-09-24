@@ -63,9 +63,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { worldId } = await params;
 
-  const deleted = await withDb((db) =>
-    softDeleteWorld(db, Number(worldId)),
-  );
+  const deleted = await withDb((db) => softDeleteWorld(db, Number(worldId)));
 
   if (!deleted) {
     return NextResponse.json({ error: "not found" }, { status: 404 });

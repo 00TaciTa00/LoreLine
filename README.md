@@ -58,12 +58,12 @@ GitHub의 blame 화면은 이 파일을 알아서 읽는다.
 
 ## DB / 마이그레이션 스크립트
 
-| 스크립트 | 설명 |
-| --- | --- |
+| 스크립트              | 설명                                                              |
+| --------------------- | ----------------------------------------------------------------- |
 | `npm run db:generate` | `lib/db/schema.ts` 기준으로 `drizzle/` 아래 마이그레이션 SQL 생성 |
-| `npm run db:migrate` | 생성된 마이그레이션을 DB에 적용 (direct 연결 사용) |
-| `npm run db:push` | 마이그레이션 파일 없이 스키마를 DB에 직접 반영 (프로토타이핑용) |
-| `npm run db:studio` | Drizzle Studio로 DB 데이터 확인 |
+| `npm run db:migrate`  | 생성된 마이그레이션을 DB에 적용 (direct 연결 사용)                |
+| `npm run db:push`     | 마이그레이션 파일 없이 스키마를 DB에 직접 반영 (프로토타이핑용)   |
+| `npm run db:studio`   | Drizzle Studio로 DB 데이터 확인                                   |
 
 연결 문자열은 두 종류를 구분해서 쓴다(Neon 권장):
 
@@ -188,12 +188,12 @@ Pages가 아닌 **Workers Builds**를 쓴다. 저장소 연결은 GitHub OAuth �
    저장소 `00TaciTa00/LoreLine` 선택
 3. 빌드 설정:
 
-   | 항목 | 값 |
-   | --- | --- |
-   | Build command | `npm run cf:build` |
-   | Deploy command | `npx wrangler deploy` |
-   | Branch (production) | `main` |
-   | Root directory | (비움 — 저장소 루트에 `package.json`이 있다) |
+   | 항목                | 값                                           |
+   | ------------------- | -------------------------------------------- |
+   | Build command       | `npm run cf:build`                           |
+   | Deploy command      | `npx wrangler deploy`                        |
+   | Branch (production) | `main`                                       |
+   | Root directory      | (비움 — 저장소 루트에 `package.json`이 있다) |
 
 4. 이후 `main`에 push하면 자동으로 빌드·배포된다.
 

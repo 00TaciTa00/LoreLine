@@ -125,83 +125,86 @@ export function TimelineGrid({
               <div className="h-0.5 rounded bg-zinc-900 dark:bg-zinc-50" />
             )}
 
-          <div
-            className="grid border-b border-zinc-100 dark:border-zinc-800"
-            style={{ gridTemplateColumns }}
-            onDragOver={(e) => {
-              if (draggingId === null) return;
-              e.preventDefault();
-              e.dataTransfer.dropEffect = "move";
-              // 행의 위/아래 절반 중 어디에 있는지로 삽입할 틈을 정한다.
-              // 어느 열에 놓든 행 위치만 본다(가로 이동은 순서와 무관).
-              const rect = e.currentTarget.getBoundingClientRect();
-              const isBottomHalf = e.clientY > rect.top + rect.height / 2;
-              setDropGap(isBottomHalf ? rowIndex + 1 : rowIndex);
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              if (draggingId !== null && dropGap !== null) {
-                onReorder(draggingId, dropGap);
-              }
-              setDraggingId(null);
-              setDropGap(null);
-            }}
-          >
-            {/*
+            <div
+              className="grid border-b border-zinc-100 dark:border-zinc-800"
+              style={{ gridTemplateColumns }}
+              onDragOver={(e) => {
+                if (draggingId === null) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                // 행의 위/아래 절반 중 어디에 있는지로 삽입할 틈을 정한다.
+                // 어느 열에 놓든 행 위치만 본다(가로 이동은 순서와 무관).
+                const rect = e.currentTarget.getBoundingClientRect();
+                const isBottomHalf = e.clientY > rect.top + rect.height / 2;
+                setDropGap(isBottomHalf ? rowIndex + 1 : rowIndex);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggingId !== null && dropGap !== null) {
+                  onReorder(draggingId, dropGap);
+                }
+                setDraggingId(null);
+                setDropGap(null);
+              }}
+            >
+              {/*
               가로로 스크롤해도 지금 보는 사건이 언제 일인지 알 수 있도록 고정.
               배경색을 직접 줘야 한다. 없으면 밑을 지나가는 카드가 글자에
               겹쳐 보인다.
             */}
-            {/*
+              {/*
               왼쪽 색 띠는 이 행이 어느 상위 기간에 속하는지 나타낸다.
               기간이 없어도 띠 자리는 비워 두지 않고 투명하게 남긴다. 안 그러면
               기간이 있는 행과 글자 시작 위치가 4px 어긋난다.
             */}
-            <div
-              className="sticky left-0 z-10 border-l-4 border-r border-zinc-100 bg-background px-3 py-3 dark:border-zinc-800"
-              style={{ borderLeftColor: row.eraColor ?? "transparent" }}
-            >
-              <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                {row.displayTime}
-              </p>
-            </div>
+              <div
+                className="sticky left-0 z-10 border-l-4 border-r border-zinc-100 bg-background px-3 py-3 dark:border-zinc-800"
+                style={{ borderLeftColor: row.eraColor ?? "transparent" }}
+              >
+                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {row.displayTime}
+                </p>
+              </div>
 
-            {visibleLanes.map((lane) => {
-              const cell = row.cells.get(lane.id) ?? [];
-              return (
-                <div
-                  key={lane.id}
-                  className="border-r border-zinc-100 px-2 py-2 dark:border-zinc-800"
-                >
-                  <div className="flex flex-col gap-1.5">
-                    {cell.map((event) => (
-                      <EventCard
-                        key={event.id}
-                        event={event}
-                        axis={axis}
-                        laneColor={lane.color}
-                        eraColor={row.eraColor}
-                        isDragging={draggingId === event.id}
-                        isExpanded={expandedChipIds.has(event.id)}
-                        onToggleChips={() => toggleChips(event.id)}
-                        onOpen={() => onSelectEvent(event.id)}
-                        onDragStart={(e) => {
-                          setDraggingId(event.id);
-                          e.dataTransfer.effectAllowed = "move";
-                          // Firefox는 데이터가 있어야 드래그를 시작한다.
-                          e.dataTransfer.setData("text/plain", String(event.id));
-                        }}
-                        onDragEnd={() => {
-                          setDraggingId(null);
-                          setDropGap(null);
-                        }}
-                      />
-                    ))}
+              {visibleLanes.map((lane) => {
+                const cell = row.cells.get(lane.id) ?? [];
+                return (
+                  <div
+                    key={lane.id}
+                    className="border-r border-zinc-100 px-2 py-2 dark:border-zinc-800"
+                  >
+                    <div className="flex flex-col gap-1.5">
+                      {cell.map((event) => (
+                        <EventCard
+                          key={event.id}
+                          event={event}
+                          axis={axis}
+                          laneColor={lane.color}
+                          eraColor={row.eraColor}
+                          isDragging={draggingId === event.id}
+                          isExpanded={expandedChipIds.has(event.id)}
+                          onToggleChips={() => toggleChips(event.id)}
+                          onOpen={() => onSelectEvent(event.id)}
+                          onDragStart={(e) => {
+                            setDraggingId(event.id);
+                            e.dataTransfer.effectAllowed = "move";
+                            // Firefox는 데이터가 있어야 드래그를 시작한다.
+                            e.dataTransfer.setData(
+                              "text/plain",
+                              String(event.id),
+                            );
+                          }}
+                          onDragEnd={() => {
+                            setDraggingId(null);
+                            setDropGap(null);
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
             {/* 마지막 행 뒤에 놓는 경우 */}
             {draggingId !== null &&
@@ -262,7 +265,10 @@ function EventCard({
         isDragging ? "opacity-40" : ""
       }`}
       // 좌측 띠=이 행의 상위 기간(시간열) 색, 상단 띠=이 열(공간/인물) 색.
-      style={{ borderLeftColor: eraColor ?? "transparent", borderTopColor: laneColor }}
+      style={{
+        borderLeftColor: eraColor ?? "transparent",
+        borderTopColor: laneColor,
+      }}
     >
       <button
         type="button"
@@ -275,7 +281,11 @@ function EventCard({
       {related.length > 0 && (
         <div className="mt-1 flex flex-wrap items-center gap-1">
           {shown.map((entity) => (
-            <EntityChip key={entity.id} name={entity.name} color={entity.color} />
+            <EntityChip
+              key={entity.id}
+              name={entity.name}
+              color={entity.color}
+            />
           ))}
 
           {/*
@@ -293,7 +303,9 @@ function EventCard({
               // 무엇이 몇 개 숨는지 미리 알 수 있다.
               // 부호만으로는 뜻이 좁으니 화면 낭독기에는 이름을 따로 준다.
               aria-label={
-                isExpanded ? `${hiddenCount}개 접기` : `${hiddenCount}개 더 보기`
+                isExpanded
+                  ? `${hiddenCount}개 접기`
+                  : `${hiddenCount}개 더 보기`
               }
               className="shrink-0 rounded-full border border-dashed border-zinc-300 px-2 py-0.5 text-xs text-zinc-500 hover:border-zinc-400 hover:text-zinc-700 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:text-zinc-300"
             >
