@@ -74,22 +74,30 @@ that point again?" Loreline turns that lookup into a single screen.
 
 The character grid looks like this. Time runs down, characters run across.
 
-```
-In-story time    │  Erichthonios  │  Fisherman  │   Berk    │   Linda
-─────────────────┼────────────────┼─────────────┼───────────┼──────────
-Ancient :        │ ┌────────────┐ │             │     ╎     │    ╎
-just after       │ │ Leave a    │ │             │     ╎     │    ╎
-the end          │ │ memory     │ │             │     ╎     │    ╎
-                 │ └────────────┘ │             │     ╎     │    ╎
-─────────────────┼────────────────┼─────────────┼───────────┼──────────
-Sixth Era :      │                │             │ ┌───────────────────┐
-Linda, age 40    │                │             │ │ At last, that day  │
-                 │                │             │ └───────────────────┘
-```
+<table>
+  <tr>
+    <th align="left">In-story time</th>
+    <th>Erichthonios</th><th>A fisherman</th><th>Berk</th><th>Linda</th>
+  </tr>
+  <tr>
+    <td align="left">Ancient :<br>just after the end</td>
+    <td>Leave a memory</td><td></td><td></td><td></td>
+  </tr>
+  <tr>
+    <td align="left">Fifth Era :<br>the adventurer, late years</td>
+    <td></td><td>The day a ruin fell further</td><td></td><td></td>
+  </tr>
+  <tr>
+    <td align="left">Sixth Era :<br>Linda, age 40</td>
+    <td></td><td></td>
+    <td colspan="2">At last, that day</td>
+  </tr>
+</table>
 
-- When two characters share an event, **one card** spans both columns
-- The dotted vertical line marks that character's **first to last appearance**
-- Events that overlap horizontally drop to a **second row band** within the same row
+- When two characters share an event, **one card** spans both columns —
+  the `colspan` above is exactly that shape
+- The character grid also draws a vertical lifeline from **first to last appearance**
+- Events that overlap horizontally drop to a **lower band** within the same row
 
 ## Architecture
 
