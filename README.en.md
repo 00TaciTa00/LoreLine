@@ -69,35 +69,19 @@ that point again?" Loreline turns that lookup into a single screen.
 
 ## Screens
 
-> Screenshots are pending ([#43](https://github.com/00TaciTa00/LoreLine/issues/43)).
-> Until then, here is the shape of the grid.
+The character grid. Time runs down, characters run across.
 
-The character grid looks like this. Time runs down, characters run across.
+![Character timeline grid](docs/screenshots/timeline-character-grid.jpg)
 
-<table>
-  <tr>
-    <th align="left">In-story time</th>
-    <th>Erichthonios</th><th>A fisherman</th><th>Berk</th><th>Linda</th>
-  </tr>
-  <tr>
-    <td align="left">Ancient :<br>just after the end</td>
-    <td>Leave a memory</td><td></td><td></td><td></td>
-  </tr>
-  <tr>
-    <td align="left">Fifth Era :<br>the adventurer, late years</td>
-    <td></td><td>The day a ruin fell further</td><td></td><td></td>
-  </tr>
-  <tr>
-    <td align="left">Sixth Era :<br>Linda, age 40</td>
-    <td></td><td></td>
-    <td colspan="2">At last, that day</td>
-  </tr>
-</table>
+- An event several characters share is drawn as **one card** spanning their
+  columns. A column caught in between gets no color in the top strip, so it is
+  clear it did not take part
+- The vertical line runs from that character's **first to last appearance**,
+  capped with a dot at each end
+- Events that overlap horizontally at the same moment drop to a **lower band**
+  within the same row
 
-- When two characters share an event, **one card** spans both columns —
-  the `colspan` above is exactly that shape
-- The character grid also draws a vertical lifeline from **first to last appearance**
-- Events that overlap horizontally drop to a **lower band** within the same row
+> The interface is Korean only for now.
 
 ## Architecture
 
