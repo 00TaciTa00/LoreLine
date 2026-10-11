@@ -42,6 +42,8 @@ describe("computeLanes", () => {
     const lanes = computeLanes("place", [palace, forest], [eirin]);
 
     expect(lanes.map((l) => l.id)).toEqual(["place-1", "place-2"]);
+    // 열 순서를 바꿀 때 서버로 보낼 id다. 접두사를 뗀 숫자여야 한다.
+    expect(lanes.map((l) => l.entityId)).toEqual([1, 2]);
     expect(lanes.map((l) => l.label)).toEqual(["왕궁", "숲"]);
     expect(lanes[0].color).toBe("#ef4444");
   });
@@ -50,6 +52,7 @@ describe("computeLanes", () => {
     const lanes = computeLanes("character", [palace], [eirin, kasl]);
 
     expect(lanes.map((l) => l.id)).toEqual(["character-1", "character-2"]);
+    expect(lanes.map((l) => l.entityId)).toEqual([1, 2]);
     expect(lanes.map((l) => l.label)).toEqual(["에이린", "카슬"]);
     expect(lanes[1].color).toBe("#a855f7");
   });

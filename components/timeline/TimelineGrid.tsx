@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { EntityChip } from "@/components/ui/EntityChip";
+import { useDragReorder } from "@/lib/hooks/useDragReorder";
 import type { EventItem } from "@/lib/api/types";
 import { buildGrid } from "@/lib/timeline/grid";
 import { laneLifespans, layoutRow } from "@/lib/timeline/grid-layout";
@@ -16,6 +17,11 @@ type TimelineGridProps = {
   onSelectEvent: (eventId: number) => void;
   /** 행 사이 틈(0=첫 행 앞)으로 사건을 옮겼을 때 */
   onReorder: (eventId: number, gapIndex: number) => void;
+  /**
+   * 머릿행을 끌어 열 순서를 바꿨을 때. 끌던 항목을 제외한 전체 목록 기준의
+   * 삽입 위치가 넘어온다.
+   */
+  onReorderLane: (entityId: number, toIndex: number) => void;
 };
 
 /** 시간 라벨이 들어가는 왼쪽 고정 열 너비 */
@@ -51,6 +57,7 @@ export function TimelineGrid({
   hiddenLaneIds,
   onSelectEvent,
   onReorder,
+  onReorderLane,
 }: TimelineGridProps) {
   const [draggingId, setDraggingId] = useState<number | null>(null);
   /** 삽입선을 그릴 행 사이 틈. 0이면 첫 행 앞, rows.length면 마지막 행 뒤. */
@@ -71,6 +78,20 @@ export function TimelineGrid({
   const visibleLanes = lanes.filter((l) => !hiddenLaneIds.has(l.id));
   const visibleLaneIds = new Set(visibleLanes.map((l) => l.id));
   const rows = buildGrid(events, axis, visibleLaneIds);
+
+  /**
+   * 필터로 숨긴 열이 하나라도 있으면 머릿행을 끌 수 없다.
+   *
+   * 보이는 것만 놓고 순서를 바꾸면 숨은 열 사이 어디에 놓였는지 알 수 없어,
+   * 놓은 자리와 실제 결과가 어긋난다. 목록 페이지가 검색 중에 끌기를 끄는
+   * 것과 같은 이유다.
+   */
+  const canReorderLanes = hiddenLaneIds.size === 0;
+  const laneDrag = useDragReorder(
+    visibleLanes.map((l) => l.entityId),
+    onReorderLane,
+    { axis: "horizontal", enabled: canReorderLanes },
+  );
 
   if (visibleLanes.length === 0) {
     return (
@@ -112,16 +133,40 @@ export function TimelineGrid({
         <div
           className="sticky top-0 z-30 grid border-b border-zinc-200 bg-background dark:border-zinc-800"
           style={{ gridTemplateColumns }}
+          {...laneDrag.containerProps}
         >
           {/* 좌상단 모서리: 가로·세로 양쪽으로 고정된다 */}
           <div className="sticky left-0 z-10 border-l-4 border-l-transparent border-r border-zinc-100 bg-background px-3 py-2 text-xs font-medium text-zinc-400 dark:border-zinc-800">
             작중 시각
           </div>
-          {visibleLanes.map((lane) => (
+          {visibleLanes.map((lane, index) => (
             <div
               key={lane.id}
-              className="border-r border-zinc-100 px-3 py-2 dark:border-zinc-800"
+              {...laneDrag.itemProps(lane.entityId, index)}
+              title={
+                canReorderLanes
+                  ? "끌어서 순서를 바꿉니다"
+                  : "필터로 숨긴 열이 있어 순서를 바꿀 수 없습니다"
+              }
+              className={`relative border-r border-zinc-100 px-3 py-2 dark:border-zinc-800 ${
+                canReorderLanes ? "cursor-grab active:cursor-grabbing" : ""
+              } ${laneDrag.draggingId === lane.entityId ? "opacity-40" : ""}`}
             >
+              {/* 이 열 앞에 놓인다는 표시 */}
+              {laneDrag.showLineAt(index) && (
+                <span
+                  aria-hidden
+                  className="absolute inset-y-0 left-0 w-0.5 bg-zinc-900 dark:bg-zinc-50"
+                />
+              )}
+              {/* 마지막 열 뒤에 놓는 경우 */}
+              {index === visibleLanes.length - 1 &&
+                laneDrag.showLineAt(index + 1) && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-0 right-0 w-0.5 bg-zinc-900 dark:bg-zinc-50"
+                  />
+                )}
               <span className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full"

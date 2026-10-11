@@ -13,11 +13,11 @@ import { buildGrid, laneEventCounts } from "@/lib/timeline/grid";
 import { placementForRowDrop } from "@/lib/timeline/grid-reorder";
 import { computeLanes } from "@/lib/timeline/lanes";
 import type { EventItem } from "@/lib/api/types";
-import { useCharacters } from "@/lib/query/characters";
+import { useCharacters, useReorderCharacter } from "@/lib/query/characters";
 import { useEras } from "@/lib/query/eras";
 import { useEvents, useReorderEvent } from "@/lib/query/events";
 import { placementForDrop } from "@/lib/timeline/reorder";
-import { usePlaces } from "@/lib/query/places";
+import { usePlaces, useReorderPlace } from "@/lib/query/places";
 import { useTimelineViewStore } from "@/store/useTimelineViewStore";
 
 export function WorldTimelineView() {
@@ -30,6 +30,8 @@ export function WorldTimelineView() {
   const { data: eras } = useEras(worldId);
   const { viewMode, setViewMode } = useTimelineViewStore();
   const reorderEvent = useReorderEvent(worldId);
+  const reorderPlace = useReorderPlace(worldId);
+  const reorderCharacter = useReorderCharacter(worldId);
 
   const [modalEvent, setModalEvent] = useState<EventItem | "new" | null>(null);
 
@@ -73,6 +75,27 @@ export function WorldTimelineView() {
     const placement = placementForRowDrop(rows, eventId, gapIndex);
     if (placement === null) return;
     reorderEvent.mutate({ eventId, placement });
+  }
+
+  /**
+   * 격자 머릿행을 끌어 열 순서를 바꿨을 때.
+   *
+   * 열 순서는 공간·인물 자체의 sort_key다. 목록 페이지에서 끄는 것과 같은
+   * 값을 고치므로 두 화면의 순서가 늘 같이 움직인다.
+   *
+   * placementForDrop에는 **거르지 않은 전체 목록**을 넘긴다. 숨긴 열이 있으면
+   * TimelineGrid가 아예 끌지 못하게 하므로 여기 도달하지 않는다.
+   */
+  function handleLaneReorder(entityId: number, toIndex: number) {
+    if (gridAxis === "place") {
+      const placement = placementForDrop(places ?? [], entityId, toIndex);
+      if (placement === null) return;
+      reorderPlace.mutate({ placeId: entityId, placement });
+    } else if (gridAxis === "character") {
+      const placement = placementForDrop(characters ?? [], entityId, toIndex);
+      if (placement === null) return;
+      reorderCharacter.mutate({ characterId: entityId, placement });
+    }
   }
 
   function toggleLane(laneId: string) {
@@ -144,6 +167,7 @@ export function WorldTimelineView() {
               setModalEvent(events?.find((e) => e.id === id) ?? null)
             }
             onReorder={handleGridReorder}
+            onReorderLane={handleLaneReorder}
           />
         ) : (
           <EventCardList
