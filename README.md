@@ -1,34 +1,62 @@
-<div align="center">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/wordmark-dark.svg">
+    <img src="docs/wordmark-light.svg" alt="Loreline" width="200" height="56">
+  </picture>
+</p>
 
-# Loreline
+<p align="center">소설 집필을 돕는 서사 관리 웹 서비스.</p>
 
-**소설 집필을 돕는 서사 관리 웹 서비스**
+<p align="center">
+  <strong>한국어</strong> ·
+  <a href="README.en.md">English</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-여러 세계관을 관리하고, 그 안의 사건을 **작중 시간 순서**로 타임라인에 그린다.
-현실의 날짜가 아니라 "제3 성력, 789년" 같은 가상의 시간축 위에서.
+<!-- 아래 &nbsp;와 word joiner(&#8288;)는 좁은 화면에서 줄이 꺾이는 자리를 정한다. 문장을 고칠 때 함께 옮길 것. -->
 
-[![CI](https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml/badge.svg)](https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+<p align="center">
+<strong>그 인물이 그때 어디 있었는지, 매&#8288;번&nbsp;앞&#8288;장&#8288;을&nbsp;다&#8288;시&nbsp;넘&#8288;겼&#8288;습&#8288;니&#8288;다.</strong><br>
+그래서 작중 시간으로 된 표를 만&#8288;들&#8288;었&#8288;습&#8288;니&#8288;다.
+</p>
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Drizzle](https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Neon](https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=white)](https://neon.tech/)
-[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+<p align="center">
+현실의 날짜가 아니라 <strong>"제3 성력, 789년"</strong> 같&#8288;은&nbsp;가&#8288;상&#8288;의&nbsp;시&#8288;간&#8288;축 위에서,<br>
+<strong>세로는 시간, 가로는 인&#8288;물</strong>로 늘어놓습니다.
+</p>
 
-**한국어** · [English](./README.en.md) · [简体中文](./README.zh-CN.md)
+<p align="center">
+  <img src="docs/screenshots/timeline-character-grid.jpg" alt="인물별 타임라인 격자" width="820">
+</p>
 
-</div>
+<p align="center"><sub>인물 여섯 명의 연대기. 함께 겪은 일은 카&#8288;드&nbsp;한&nbsp;장&#8288;이&nbsp;두&nbsp;열&#8288;을&nbsp;가&#8288;로&#8288;지&#8288;릅&#8288;니&#8288;다.</sub></p>
 
----
+<p align="center"><a href="#시작하기">띄워&nbsp;보기&nbsp;↓</a> · <a href="#격자-읽는-법">격자&nbsp;읽는&nbsp;법&nbsp;→</a></p>
+
+<br>
+
+<p align="center">
+  <a href="https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml"><img src="https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5">
+  <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4">
+  <img src="https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black" alt="Drizzle ORM">
+  <img src="https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=white" alt="Neon Postgres">
+  <img src="https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare Workers">
+</p>
+
+<br>
 
 ## 목차
 
 - [무엇을 하는가](#무엇을-하는가)
 - [주요 기능](#주요-기능)
-- [화면](#화면)
+- [격자 읽는 법](#격자-읽는-법)
 - [구조](#구조)
 - [기술 스택](#기술-스택)
 - [시작하기](#시작하기)
@@ -65,11 +93,9 @@ Loreline은 그 되짚기를 화면 하나로 줄인다.
 | **소프트 삭제**         | 지운 것은 `deleted_at`으로만 표시되고 실제로 지워지지 않는다      |
 | **다크 모드**           | 시스템 설정을 따르거나 직접 전환                                  |
 
-## 화면
+## 격자 읽는 법
 
-인물별 격자. 세로가 시간, 가로가 인물이다.
-
-![인물별 타임라인 격자](docs/screenshots/timeline-character-grid.jpg)
+위 스크린샷을 기준으로.
 
 - 여러 인물이 얽힌 사건은 **카드 한 장**이 그 열들을 가로지른다("국경의 봉화").
   사이에 낀 열(카슬)에는 상단 띠에 색이 없어 참여하지 않았음이 드러난다

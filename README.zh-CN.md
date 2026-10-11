@@ -1,34 +1,60 @@
-<div align="center">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/wordmark-dark.svg">
+    <img src="docs/wordmark-light.svg" alt="Loreline" width="200" height="56">
+  </picture>
+</p>
 
-# Loreline
+<p align="center">为小说创作而生的叙事管理 Web 应用。</p>
 
-**为小说创作而生的叙事管理 Web 应用**
+<p align="center">
+  <a href="README.md">한국어</a> ·
+  <a href="README.en.md">English</a> ·
+  <strong>简体中文</strong>
+</p>
 
-管理多个世界观，并把其中的事件按**故事内时间**排布在时间线上 —— 用的不是日历日期，
-而是"第三灵历 789 年"这样自己设定的时间轴。
+<p align="center">
+<strong>这个人物当时到底在哪里？</strong><br>
+为了确认，我一次次往回翻页。于是做了一张以故事内时间为轴的表。
+</p>
 
-[![CI](https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml/badge.svg)](https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+<p align="center">
+不是日历日期，而是<strong>"第三灵历 789 年"</strong>这样自己设定的时间轴，<br>
+<strong>纵向是时间，横向是人物</strong>。
+</p>
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Drizzle](https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Neon](https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=white)](https://neon.tech/)
-[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+<p align="center">
+  <img src="docs/screenshots/timeline-character-grid.jpg" alt="人物时间线网格" width="820">
+</p>
 
-[한국어](./README.md) · [English](./README.en.md) · **简体中文**
+<p align="center"><sub>六个人物的编年史。两人共同经历的事件，用一张卡片横跨两列。</sub></p>
 
-</div>
+<p align="center"><a href="#快速开始">跑起来&nbsp;&darr;</a> &middot; <a href="#如何读懂网格">如何读懂网格&nbsp;&rarr;</a></p>
 
----
+<br>
+
+<p align="center">
+  <a href="https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml"><img src="https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5">
+  <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4">
+  <img src="https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black" alt="Drizzle ORM">
+  <img src="https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=white" alt="Neon Postgres">
+  <img src="https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare Workers">
+</p>
+
+<br>
 
 ## 目录
 
 - [它解决什么问题](#它解决什么问题)
 - [主要功能](#主要功能)
-- [界面](#界面)
+- [如何读懂网格](#如何读懂网格)
 - [架构](#架构)
 - [技术栈](#技术栈)
 - [快速开始](#快速开始)
@@ -64,11 +90,9 @@ Loreline 把这种回溯压缩到一个页面里。
 | **软删除**             | 删除只是写入 `deleted_at`，数据不会真正消失          |
 | **深色模式**           | 跟随系统设置，也可手动切换                           |
 
-## 界面
+## 如何读懂网格
 
-人物网格。纵向是时间，横向是人物。
-
-![人物时间线网格](docs/screenshots/timeline-character-grid.jpg)
+以上面的截图为例。
 
 - 多个人物共同参与的事件会用**一张卡片**横跨这些列。夹在中间但未参与的列，
   顶部色条留空，一眼就能区分

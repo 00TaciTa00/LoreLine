@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" width="200" height="56" role="img" aria-label="Loreline">
+  <title>Loreline</title>
+  <!--
+    왼쪽 기호는 앱의 인물 흐름선이다. 첫 등장과 마지막 등장을 점으로 찍고
+    그 사이를 세로선으로 잇는다(components/timeline/TimelineGrid.tsx).
+
+    글자는 보는 사람의 시스템 글꼴로 그려진다. 글꼴마다 너비가 달라 상자를
+    넘길 수 있으므로 textLength로 폭을 고정한다.
+  -->
+  <line x1="12" y1="17" x2="12" y2="39" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" />
+  <circle cx="12" cy="14" r="3.5" fill="#f97316" />
+  <circle cx="12" cy="42" r="3.5" fill="#f97316" />
+  <text x="30" y="37"
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-size="30" font-weight="600" letter-spacing="-0.5" fill="#18181b"
+        textLength="156" lengthAdjust="spacingAndGlyphs">Loreline</text>
+</svg>
