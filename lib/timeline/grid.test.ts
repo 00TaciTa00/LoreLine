@@ -267,8 +267,8 @@ describe("buildGrid", () => {
 describe("laneEventCounts", () => {
   it("레인별 사건 수를 센다", () => {
     const lanes = [
-      { id: "place-1", label: "왕궁", color: "#000" },
-      { id: "place-2", label: "숲", color: "#000" },
+      { id: "place-1", entityId: 1, label: "왕궁", color: "#000" },
+      { id: "place-2", entityId: 2, label: "숲", color: "#000" },
     ];
     const counts = laneEventCounts(
       [
@@ -284,7 +284,9 @@ describe("laneEventCounts", () => {
   });
 
   it("사건이 없는 레인도 0으로 포함한다", () => {
-    const lanes = [{ id: "place-9", label: "빈 공간", color: "#000" }];
+    const lanes = [
+      { id: "place-9", entityId: 9, label: "빈 공간", color: "#000" },
+    ];
     const counts = laneEventCounts([], lanes, "place");
     expect(counts.get("place-9")).toBe(0);
   });
