@@ -1,35 +1,60 @@
-<div align="center">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/wordmark-dark.svg">
+    <img src="docs/wordmark-light.svg" alt="Loreline" width="200" height="56">
+  </picture>
+</p>
 
-# Loreline
+<p align="center">A narrative management web app for novelists.</p>
 
-**A narrative management web app for novelists**
+<p align="center">
+  <a href="README.md">한국어</a> ·
+  <strong>English</strong> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-Manage several fictional worlds and lay their events out on a timeline ordered by
-**in-story time** — not calendar dates, but an invented axis like
-"Year 789 of the Third Astral Era."
+<p align="center">
+<strong>Where was this character at that point again?</strong><br>
+I kept turning back pages to find out. So I built a table made of in-story time.
+</p>
 
-[![CI](https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml/badge.svg)](https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+<p align="center">
+Not calendar dates but an invented axis &mdash; <strong>"Year 789 of the Third Astral Era"</strong> &mdash;<br>
+with <strong>time running down and characters running across</strong>.
+</p>
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Drizzle](https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Neon](https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=white)](https://neon.tech/)
-[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+<p align="center">
+  <img src="docs/screenshots/timeline-character-grid.jpg" alt="Character timeline grid" width="820">
+</p>
 
-[한국어](./README.md) · **English** · [简体中文](./README.zh-CN.md)
+<p align="center"><sub>Six characters, one chronicle. An event two of them share is drawn as a single card spanning both columns.</sub></p>
 
-</div>
+<p align="center"><a href="#getting-started">Run&nbsp;it&nbsp;&darr;</a> &middot; <a href="#reading-the-grid">Read&nbsp;the&nbsp;grid&nbsp;&rarr;</a></p>
 
----
+<br>
+
+<p align="center">
+  <a href="https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml"><img src="https://github.com/00TaciTa00/LoreLine/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5">
+  <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4">
+  <img src="https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black" alt="Drizzle ORM">
+  <img src="https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=white" alt="Neon Postgres">
+  <img src="https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare Workers">
+</p>
+
+<br>
 
 ## Contents
 
 - [What it does](#what-it-does)
 - [Features](#features)
-- [Screens](#screens)
+- [Reading the grid](#reading-the-grid)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
@@ -67,11 +92,9 @@ that point again?" Loreline turns that lookup into a single screen.
 | **Soft delete**                | Deleting only sets `deleted_at`; nothing is actually removed                      |
 | **Dark mode**                  | Follows the system setting or toggles manually                                    |
 
-## Screens
+## Reading the grid
 
-The character grid. Time runs down, characters run across.
-
-![Character timeline grid](docs/screenshots/timeline-character-grid.jpg)
+Going by the screenshot above.
 
 - An event several characters share is drawn as **one card** spanning their
   columns. A column caught in between gets no color in the top strip, so it is
